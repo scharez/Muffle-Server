@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.ArrayList;
 
 @Entity
 public class Muffler {
@@ -17,6 +18,19 @@ public class Muffler {
     String email;
     String firstName;
     String lastName;
+
+    ArrayList<Playlist> playlists = new ArrayList<Playlist>();
+
+    public Muffler(String username, String password, String firstName, String lastName) {
+        this.username = username;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public Muffler() {
+    }
+
 
     public long getId() {
         return id;
@@ -64,5 +78,13 @@ public class Muffler {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public ArrayList<Playlist> getPlaylists() {
+        return playlists;
+    }
+
+    public void setPlaylists(ArrayList<Playlist> playlists) {
+        this.playlists = playlists;
     }
 }

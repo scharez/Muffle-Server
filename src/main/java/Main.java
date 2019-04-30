@@ -1,6 +1,7 @@
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import service.MuffleService;
 
 import java.io.IOException;
 import java.net.URI;
