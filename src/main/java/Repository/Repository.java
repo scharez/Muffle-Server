@@ -15,38 +15,39 @@ public class Repository {
     //All users of our app will be saved in this list
     private ArrayList<Muffler> muffleUsers = new ArrayList<Muffler>();
 
-    private Repository(){}
+    private Repository() {
+    }
 
-    public static Repository getInstance(){
-        if(instance == null){
+    public static Repository getInstance() {
+        if (instance == null) {
             instance = new Repository();
         }
         return instance;
     }
 
-    public void addNewUser(Muffler newMuffler){
+    public void addNewUser(Muffler newMuffler) {
         this.muffleUsers.add(newMuffler);
     }
 
 
-    public String getPlaylists(String username){
+    public String getPlaylists(String username) {
         Gson gson = new Gson();
-        for(Muffler m : muffleUsers){
-            if(m.getUsername().equals(username)){
+        for (Muffler m : muffleUsers) {
+            if (m.getUsername().equals(username)) {
                 return gson.toJson(m.getPlaylists());
             }
         }
         return "";
     }
 
-    public String addNewSong(String username, String playlistName, Song song){
+    public String addNewSong(String username, String playlistName, Song song) {
         Gson gson = new Gson();
         Muffler muffler = null;
-        for(Muffler m : muffleUsers){
-            if(m.getUsername().equals(username)){
+        for (Muffler m : muffleUsers) {
+            if (m.getUsername().equals(username)) {
                 muffler = m;
-                for(Entity.Playlist p : m.getPlaylists()){
-                    if(p.getName().equals(playlistName)){
+                for (Entity.Playlist p : m.getPlaylists()) {
+                    if (p.getName().equals(playlistName)) {
                         p.getSongs().add(song);
                     }
                 }
@@ -55,7 +56,7 @@ public class Repository {
         return "";
     }
 
-    public void initUsers(){
+    public void initUsers() {
         Song s1 = new Song("www.google.com", "Dear Darling", "Olly Murse", 3.42);
         Song s2 = new Song("www.google.com", "Code it!", "The Feppers", 2.57);
         Song s3 = new Song("www.google.com", "The Fighter", "Keith Urban", 3.24);
@@ -99,8 +100,8 @@ public class Repository {
 
     public String createNewPlaylist(String user, String name) {
         Gson gson = new Gson();
-        for(Muffler m : muffleUsers){
-            if(m.getUsername().equals(user)){
+        for (Muffler m : muffleUsers) {
+            if (m.getUsername().equals(user)) {
                 m.getPlaylists().add(new Playlist(name));
             }
         }

@@ -19,7 +19,8 @@ public class Song {
     double duration;
 
 
-    public Song() {}
+    public Song() {
+    }
 
     public Song(String url, String title, String artist, double duration) {
         this.url = url;

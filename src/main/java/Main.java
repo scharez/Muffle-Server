@@ -15,7 +15,7 @@ public class Main {
 
     public static org.glassfish.grizzly.http.server.HttpServer startServer() {
 
-        final ResourceConfig rc = new ResourceConfig().packages("service","filter");
+        final ResourceConfig rc = new ResourceConfig().packages("service", "filter");
 
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
