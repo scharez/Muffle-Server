@@ -1,6 +1,7 @@
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import service.MuffleService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,7 +15,7 @@ public class Main {
 
     public static org.glassfish.grizzly.http.server.HttpServer startServer() {
 
-        final ResourceConfig rc = new ResourceConfig().packages("service","filter");
+        final ResourceConfig rc = new ResourceConfig().packages("service", "filter");
 
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
