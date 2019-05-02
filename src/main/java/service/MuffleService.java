@@ -29,6 +29,16 @@ public class MuffleService {
         repo.addNewUser(muffler);
     }
 
+    @Path("login")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String loginUser(Muffler muffler){
+        return repo.loginUser(muffler);
+    }
+
+
+
     @Path("addsong")
     @POST
     @Produces(MediaType.APPLICATION_JSON)

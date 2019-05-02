@@ -29,6 +29,14 @@ public class Repository {
         this.muffleUsers.add(newMuffler);
     }
 
+    public String loginUser(Muffler muffler){
+        for(Muffler m : muffleUsers){
+            if(m.getUsername().equals(muffler.getUsername()) && m.getPassword().equals(muffler.getPassword())){
+                return new Gson().toJson(m);
+            }
+        }
+        return "";
+    }
 
     public String getPlaylists(String username) {
         Gson gson = new Gson();
