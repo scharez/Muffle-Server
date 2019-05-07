@@ -6,7 +6,6 @@ import javax.ws.rs.core.MediaType;
 import Entity.Muffler;
 import Entity.Song;
 import Repository.Repository;
-import com.sun.media.jfxmedia.Media;
 
 @Path("muffle")
 public class MuffleService {
@@ -60,7 +59,6 @@ public class MuffleService {
     public String getUserPlaylist(@QueryParam("username") String username) {
         return repo.getPlaylists(username);
     }
-
 
     @Path("init")
     @GET

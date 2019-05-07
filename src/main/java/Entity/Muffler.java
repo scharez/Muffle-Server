@@ -19,13 +19,16 @@ public class Muffler {
     String firstName;
     String lastName;
 
+    Role role;
+
     ArrayList<Playlist> playlists = new ArrayList<Playlist>();
 
-    public Muffler(String username, String password, String firstName, String lastName) {
+    public Muffler(String username, String password, String firstName, String lastName, Role role) {
         this.username = username;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.role = role;
     }
 
     public Muffler() {
@@ -78,6 +81,14 @@ public class Muffler {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public ArrayList<Playlist> getPlaylists() {
