@@ -1,16 +1,20 @@
-package Entity;
+package entity;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class Song {
 
     /*
-    Song wird durch die URL erkannt --> URL = Primary Key
+    Song wird durch die URL erkannt --> URL = Primary Key //Falsch
     */
+
+    /*
+    Song sollte ein ID haben und einen Path, wo die URL gespeichert ist
+
+    Url is jo irg a youtube url, de kann se ah ändern
+     */
 
     @Id
     String url;

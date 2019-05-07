@@ -1,4 +1,4 @@
-package Entity;
+package entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,9 +13,10 @@ public class Playlist {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String name;
-    ArrayList<Song> songs = new ArrayList<Song>();
+    //ArrayList<Song> songs;
 
     public Playlist() {
+        //this.songs = new ArrayList<Song>();
     }
 
     public Playlist(String name) {
@@ -38,11 +39,11 @@ public class Playlist {
         this.name = name;
     }
 
-    public void setSongs(ArrayList<Song> songs) {
-        this.songs = songs;
-    }
+   // public void setSongs(ArrayList<Song> songs) {
+        //this.songs = songs;
+   // }
 
-    public ArrayList<Song> getSongs() {
-        return songs;
-    }
+    //public ArrayList<Song> getSongs() {
+     //   return songs;
+    //}
 }

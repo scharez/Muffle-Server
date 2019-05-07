@@ -1,16 +1,16 @@
 package service;
 
+import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
-import Entity.Muffler;
-import Entity.Song;
-import Repository.Repository;
+import transferObjects.MufflerTO;
+import entity.Song;
+import repository.Repository;
+
 
 @Path("muffle")
 public class MuffleService {
-
-    Repository repo = Repository.getInstance();
 
     @Path("message")
     @GET
@@ -19,55 +19,77 @@ public class MuffleService {
         return " REST Service powered by scharez.at ";
     }
 
+    /**
+     * Registers a new Muffler
+     *
+     * @param muffler the Transfer Object of the Muffler entity
+     * @return a json which can contain an error or a successfully register message
+     */
 
-    @Path("newuser")
+    @Path("register")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void addNewUser(Muffler muffler) {
-        repo.addNewUser(muffler);
+    public String registerUser(MufflerTO muffler) {
+       return Repository.getInstance().registerUser(muffler.getUsername(), muffler.getPassword(), muffler.getEmail());
     }
+
+    /**
+     * Login a Muffler
+     *
+     * @param muffler the Transfer Object of the Muffler entity
+     * @return a json which can contain an error or a successfully login message
+     */
 
     @Path("login")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public String loginUser(Muffler muffler){
-        return repo.loginUser(muffler);
+    public String loginUser(MufflerTO muffler) {
+        return Repository.getInstance().loginUser(muffler.getUsername(), muffler.getPassword());
+    }
+
+
+    @Path("url")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String addSong(@QueryParam("url") String url) {
+
+        return Repository.getInstance().downloadSong(url);
     }
 
 
 
-    @Path("addsong")
+
+
+
+
+
+
+
+
+
+    @Path("addSong")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public String addNewSong(@QueryParam("username") String username, @QueryParam("playlist") String playlistName, Song song) {
-        return repo.addNewSong(username, playlistName, song);
+        return Repository.getInstance().addNewSong(username, playlistName, song);
     }
 
-    @Path("createplaylist")
+    @Path("createPlaylist")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String createNewPlaylist(@QueryParam("username") String user, @QueryParam("playlist") String name) {
-        return repo.createNewPlaylist(user, name);
+        return Repository.getInstance().createNewPlaylist(user, name);
     }
 
-    @Path("getplaylists")
+    @Path("getPlaylists")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getUserPlaylist(@QueryParam("username") String username) {
-        return repo.getPlaylists(username);
+        return Repository.getInstance().getPlaylists(username);
     }
-
-    @Path("init")
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String initUser() {
-        repo.initUsers();
-        return "Init finished!";
-    }
-
-
 }
 
