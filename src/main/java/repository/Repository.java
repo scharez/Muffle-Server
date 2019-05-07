@@ -1,11 +1,11 @@
-package Repository;
+package repository;
 
-import Entity.Muffler;
+import entity.Muffler;
 
 import java.util.ArrayList;
 
-import Entity.Song;
-import Entity.Playlist;
+import entity.Song;
+import entity.Playlist;
 import com.google.gson.Gson;
 
 public class Repository {
@@ -54,7 +54,7 @@ public class Repository {
         for (Muffler m : muffleUsers) {
             if (m.getUsername().equals(username)) {
                 muffler = m;
-                for (Entity.Playlist p : m.getPlaylists()) {
+                for (entity.Playlist p : m.getPlaylists()) {
                     if (p.getName().equals(playlistName)) {
                         p.getSongs().add(song);
                     }

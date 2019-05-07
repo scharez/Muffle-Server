@@ -3,9 +3,9 @@ package service;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
-import Entity.Muffler;
-import Entity.Song;
-import Repository.Repository;
+import entity.Muffler;
+import entity.Song;
+import repository.Repository;
 
 @Path("muffle")
 public class MuffleService {
@@ -20,7 +20,7 @@ public class MuffleService {
     }
 
 
-    @Path("newuser")
+    @Path("register")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -38,7 +38,7 @@ public class MuffleService {
 
 
 
-    @Path("addsong")
+    @Path("addSong")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -46,14 +46,14 @@ public class MuffleService {
         return repo.addNewSong(username, playlistName, song);
     }
 
-    @Path("createplaylist")
+    @Path("createPlaylist")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String createNewPlaylist(@QueryParam("username") String user, @QueryParam("playlist") String name) {
         return repo.createNewPlaylist(user, name);
     }
 
-    @Path("getplaylists")
+    @Path("getPlaylists")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getUserPlaylist(@QueryParam("username") String username) {

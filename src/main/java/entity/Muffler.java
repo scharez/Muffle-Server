@@ -1,10 +1,11 @@
-package Entity;
+package entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Muffler {
@@ -21,9 +22,9 @@ public class Muffler {
 
     Role role;
 
-    ArrayList<Playlist> playlists = new ArrayList<Playlist>();
+    List<Playlist> playlists = new ArrayList();
 
-    public Muffler(String username, String password, String firstName, String lastName, Role role) {
+    public Muffler(String username, String password, String firstName, String lastName) {
         this.username = username;
         this.password = password;
         this.firstName = firstName;
@@ -91,7 +92,7 @@ public class Muffler {
         this.role = role;
     }
 
-    public ArrayList<Playlist> getPlaylists() {
+    public List<Playlist> getPlaylists() {
         return playlists;
     }
 
