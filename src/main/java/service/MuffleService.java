@@ -1,13 +1,11 @@
 package service;
 
-import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import transferObjects.MufflerTO;
 import entity.Song;
 import repository.Repository;
-
 
 @Path("muffle")
 public class MuffleService {
@@ -59,6 +57,21 @@ public class MuffleService {
         return Repository.getInstance().downloadSong(url);
     }
 
+    //private String
+
+    /*
+    Methode schreiben, wo man den Token untersucht, und dann schaut, ob er diese methode aufrufen darf.
+
+    private String lol(Role allowedRole, String authHeader) {
+
+            JwtBuilder jwtbuilder = new JwtBuilder();
+            private JsonBuilder jb = new JsonBuilder();
+
+            return "";
+    }
+
+    Lehrer fragen wie das mit Custom Annotations funktioniert und statt exception Response zurückschreiben
+     */
 
 
 

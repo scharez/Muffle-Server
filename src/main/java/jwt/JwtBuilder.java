@@ -6,12 +6,13 @@ import io.jsonwebtoken.SignatureException;
 
 
 public class JwtBuilder {
-    private String key = "secret";
+
+    private String key = "secret-LOL";
+
     public String create(String subject) {
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS256, key)
                 .setSubject(subject)
-                .claim("currTime", System.currentTimeMillis())
                 .compact();
     }
 
