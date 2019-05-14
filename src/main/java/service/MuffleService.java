@@ -1,10 +1,9 @@
 package service;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-
 import transferObjects.MufflerTO;
-import entity.Song;
 import repository.Repository;
 
 @Path("muffle")
@@ -18,7 +17,7 @@ public class MuffleService {
     }
 
     /**
-     * Registers a new Muffler
+     * Register a new Muffler
      *
      * @param muffler the Transfer Object of the Muffler entity
      * @return a json which can contain an error or a successfully register message
@@ -47,14 +46,30 @@ public class MuffleService {
         return Repository.getInstance().loginUser(muffler.getUsername(), muffler.getPassword());
     }
 
+    /**---------------------------------------------------------------------------------------------------------------*/
+
 
     @Path("url")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public String addSong(@QueryParam("url") String url) {
+    public String test(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, @QueryParam("url") String url) {
 
-        return Repository.getInstance().downloadSong(url);
+
+        // Überprüfen ob header leer ist
+        String username = getUsername(authHeader);
+
+
+        return Repository.getInstance().test(username, url);
+    }
+
+
+
+    private String getUsername(String authHeader) {
+
+        String[] auth = authHeader.split("\\s");
+
+        return auth[1];
     }
 
     //private String
@@ -64,45 +79,15 @@ public class MuffleService {
 
     private String lol(Role allowedRole, String authHeader) {
 
-            JwtBuilder jwtbuilder = new JwtBuilder();
+            JwtHelper jwtbuilder = new JwtHelper();
             private JsonBuilder jb = new JsonBuilder();
 
             return "";
     }
 
-    Lehrer fragen wie das mit Custom Annotations funktioniert und statt exception Response zurückschreiben
+     - Lehrer fragen wie das mit Custom Annotations funktioniert
+
+     - statt exception Response zurückschreiben
      */
-
-
-
-
-
-
-
-
-
-
-
-    @Path("addSong")
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public String addNewSong(@QueryParam("username") String username, @QueryParam("playlist") String playlistName, Song song) {
-        return Repository.getInstance().addNewSong(username, playlistName, song);
-    }
-
-    @Path("createPlaylist")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String createNewPlaylist(@QueryParam("username") String user, @QueryParam("playlist") String name) {
-        return Repository.getInstance().createNewPlaylist(user, name);
-    }
-
-    @Path("getPlaylists")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getUserPlaylist(@QueryParam("username") String username) {
-        return Repository.getInstance().getPlaylists(username);
-    }
 }
 

@@ -5,9 +5,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 
 
-public class JwtBuilder {
+public class JwtHelper {
 
-    private String key = "secret-LOL";
+    private String key = "secret";
 
     public String create(String subject) {
         return Jwts.builder()
@@ -24,7 +24,7 @@ public class JwtBuilder {
                     .getBody()
                     .getSubject();
         } catch (SignatureException e) {
-            return null;
+            return "LOL, der derf nd";
         }
     }
 

@@ -6,7 +6,7 @@ import entity.Role;
 import entity.Song;
 import helper.JsonBuilder;
 import helper.MP3Downloader;
-import jwt.JwtBuilder;
+import jwt.JwtHelper;
 import org.bouncycastle.util.encoders.Hex;
 
 import javax.persistence.EntityManager;
@@ -17,6 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Repository {
 
@@ -26,7 +28,7 @@ public class Repository {
     JsonBuilder jb = new JsonBuilder();
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("MufflePU");
     private EntityManager em = emf.createEntityManager();
-    private JwtBuilder jwtb = new JwtBuilder();
+    private JwtHelper jwtb = new JwtHelper();
 
     private Repository() {
     }
@@ -61,14 +63,14 @@ public class Repository {
         long numberOfEntriesName = queryUniqueName.getSingleResult();
 
         if(numberOfEntriesName != 0) {
-            return jb.generateError("error"); //Username schon vergeben
+            return jb.generateResponse("error","",""); //Username schon vergeben
         }
 
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
 
-        return jb.generatePayload("","jawoi register!","");
+        return jb.generateResponse("","jawoi register!","");
     }
 
     /**
@@ -87,7 +89,7 @@ public class Repository {
         List<Muffler> result = query.getResultList();
 
         if (result.size() == 0) {
-            return jb.generateError("error"); // Error
+            return jb.generateResponse("error","",""); // Error
         }
 
         Muffler user = result.get(0);
@@ -99,7 +101,7 @@ public class Repository {
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
             if (!new String(Hex.encode(hash)).equals(user.getPassword())) {
-                return jb.generateError("login");
+                return jb.generateResponse("login","","");
             }
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -107,7 +109,7 @@ public class Repository {
 
         String jwtToken = jwtb.create(user.getUsername());
 
-        return jb.generatePayload("", "Huansau", jwtToken); //Token und stuff
+        return jb.generateResponse("", "jawoi", jwtToken); //Token und stuff
     }
 
 
@@ -117,18 +119,25 @@ public class Repository {
 
 
 
-    public String downloadSong(String url) {
+    public String test(String username, String url) {
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        executor.execute(() -> {
+
+        });
+
+        System.out.println(dw.download("", url));
 
         //Zuerst soll in der Datenbank überprüft werden, ob der song schonmal downgeloaded worden ist
-
-
-
-
 
 
         return "";
     }
 
+
+    /*
+    todo Muffle Entity Namedqueries machen
+     */
 
 
 

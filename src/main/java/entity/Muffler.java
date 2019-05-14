@@ -10,8 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 public class Muffler {
@@ -27,8 +25,6 @@ public class Muffler {
     Role role;
 
     String salt;
-
-    //List<Playlist> playlists = new ArrayList();
 
     public Muffler(String username, String password, String email) {
         this.username = username;
@@ -79,14 +75,6 @@ public class Muffler {
     public void setRole(Role role) {
         this.role = role;
     }
-
-    //public List<Playlist> getPlaylists() {
-    // return playlists;
-    //}
-
-    //public void setPlaylists(ArrayList<Playlist> playlists) {
-    //  this.playlists = playlists;
-    //}
 
     public String getSalt() {
         return salt;
