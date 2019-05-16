@@ -2,6 +2,7 @@ package repository;
 
 import entity.Muffler;
 
+import entity.Playlist;
 import entity.Role;
 import entity.Song;
 import helper.JsonBuilder;
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -60,17 +62,25 @@ public class Repository {
         TypedQuery<Long> queryUniqueName = em.createQuery("SELECT COUNT(m) FROM Muffler m WHERE m.username = :username", Long.class);
         queryUniqueName.setParameter("username", username);
 
+        TypedQuery<Long> queryUniqueEmail = em.createQuery("SELECT COUNT(m) FROM Muffler m WHERE m.email = :email", Long.class);
+        queryUniqueEmail.setParameter("email", email);
+
         long numberOfEntriesName = queryUniqueName.getSingleResult();
+        long numberOfEntriesEmail = queryUniqueName.getSingleResult();
 
         if(numberOfEntriesName != 0) {
-            return jb.generateResponse("error","",""); //Username schon vergeben
+            return jb.generateResponse("error","register","Username already exists");
+        }
+
+        if(numberOfEntriesEmail != 0) {
+            return jb.generateResponse("error","register","Email already exists");
         }
 
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
 
-        return jb.generateResponse("","jawoi register!","");
+        return jb.generateResponse("success","register","Successfully Registered");
     }
 
     /**
@@ -89,7 +99,7 @@ public class Repository {
         List<Muffler> result = query.getResultList();
 
         if (result.size() == 0) {
-            return jb.generateResponse("error","",""); // Error
+            return jb.generateResponse("error","login","User does not exist"); // Error
         }
 
         Muffler user = result.get(0);
@@ -101,7 +111,7 @@ public class Repository {
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
             if (!new String(Hex.encode(hash)).equals(user.getPassword())) {
-                return jb.generateResponse("login","","");
+                return jb.generateResponse("error","login","Wrong Password");
             }
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -109,7 +119,7 @@ public class Repository {
 
         String jwtToken = jwt.create(user.getUsername(), user.getRole());
 
-        return jb.generateResponse("", "jawoi", jwtToken); //Token und stuff
+        return jb.generateResponse("success", "login", jwtToken);
     }
 
 
@@ -122,7 +132,8 @@ public class Repository {
         /*
         executor.execute(() -> {
             try {
-                rt.exec("youtube-dl -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + url);
+                rt.exec("youtube-d
+                l -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + url);
             } catch (IOException e) {
 
 
@@ -143,15 +154,40 @@ public class Repository {
         return jb.generateResponse("","","");
     }
 
+
+    public String getPlaylists() {
+
+        Muffler m = getMuffler();
+
+        if(Objects.requireNonNull(m).getPlaylists() == null) {
+            return jb.generateResponse("error", "getPlaylists", "No Playlists");
+        }
+
+        return m.getPlaylists().toString();
+    }
+
+    public String getSongs() {
+
+        Muffler m = getMuffler();
+
+
+        return "";
+
+    }
+
+
     /**
+     * get the JWT-Token into Repository from the Filter
      *
      * @param token
      */
+
     public void saveHeader(String token) {
             this.token = token;
     }
 
     /**
+     * get a User from DB with his Token
      *
      * @return
      */
@@ -172,5 +208,6 @@ public class Repository {
 
         return result.get(0);
     }
+
 
 }

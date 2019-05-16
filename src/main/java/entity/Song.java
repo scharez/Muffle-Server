@@ -1,36 +1,42 @@
 package entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class Song {
 
-    /*
-    Song wird durch die URL erkannt --> URL = Primary Key //Falsch
-    */
-
-    /*
-    Song sollte ein ID haben und einen Path, wo die URL gespeichert ist
-
-    Url is jo irg a youtube url, de kann se ah ändern
-     */
-
     @Id
-    String url;
-    String title;
-    String artist;
-    double duration;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
+    private String url;
+    private String title;
+    private String artist;
+    private double duration;
+
+    @Temporal(TemporalType.DATE)
+    private Date added;
 
 
     public Song() {
     }
 
-    public Song(String url, String title, String artist, double duration) {
+    public Song(long id, String url, String title, String artist, double duration, Date added) {
+        this.id = id;
         this.url = url;
         this.title = title;
         this.artist = artist;
         this.duration = duration;
+        this.added = added;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getUrl() {
@@ -63,5 +69,13 @@ public class Song {
 
     public void setDuration(double duration) {
         this.duration = duration;
+    }
+
+    public Date getAdded() {
+        return added;
+    }
+
+    public void setAdded(Date added) {
+        this.added = added;
     }
 }

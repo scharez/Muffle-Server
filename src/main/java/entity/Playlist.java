@@ -1,10 +1,9 @@
 package entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Playlist {
@@ -13,14 +12,20 @@ public class Playlist {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String name;
-    //ArrayList<Song> songs;
+
+    @Temporal(TemporalType.DATE)
+    private Date created;
+
+    @OneToMany()
+    private List<Song> songs;
 
     public Playlist() {
-        //this.songs = new ArrayList<Song>();
+        this.songs = new ArrayList<>();
     }
 
-    public Playlist(String name) {
+    public Playlist(String name, Date created) {
         this.name = name;
+        this.created = created;
     }
 
     public long getId() {
@@ -39,11 +44,19 @@ public class Playlist {
         this.name = name;
     }
 
-   // public void setSongs(ArrayList<Song> songs) {
-        //this.songs = songs;
-   // }
+    public List<Song> getSongs() {
+        return songs;
+    }
 
-    //public ArrayList<Song> getSongs() {
-     //   return songs;
-    //}
+    public void setSongs(List<Song> songs) {
+        this.songs = songs;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 }

@@ -4,7 +4,6 @@ import annoation.NotSecure;
 import annoation.RolesAllowed;
 import entity.Role;
 import helper.JsonBuilder;
-import io.jsonwebtoken.Jwts;
 import jwt.JwtHelper;
 import repository.Repository;
 
@@ -52,6 +51,7 @@ public class AuthFilter implements ContainerRequestFilter {
                     jwt.checkSubject(token);
 
                     if (isUserInRole(jwt.getRole(token), rolesAllowed.value())) {
+
                         Repository.getInstance().saveHeader(token);
                     } else {
 
@@ -75,6 +75,10 @@ public class AuthFilter implements ContainerRequestFilter {
     }
 
     private boolean isUserInRole(Role userRole, Role[] roles) {
+
+        if(userRole == Role.PREMUFFLER) {  // highest user rank
+            return true;
+        }
 
         for(Role role: roles) {
             if(role.equals(userRole))

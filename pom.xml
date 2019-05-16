@@ -9,6 +9,15 @@
     <version>1.0</version>
 
     <build>
+        <filters>
+            <filter>src/main/resources/properties/muffle.properties</filter>
+        </filters>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -2,29 +2,31 @@ package entity;
 
 import org.bouncycastle.util.encoders.Hex;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Muffler {
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
-    long id;
+    private long id;
 
-    String username;
-    String password;
-    String email;
+    private String username;
+    private String password;
+    private String email;
 
-    Role role;
+    private Role role;
 
-    String salt;
+    private String salt;
+
+    @OneToMany
+    private List<Playlist> playlists;
 
     public Muffler(String username, String password, String email) {
         this.username = username;
@@ -33,6 +35,7 @@ public class Muffler {
     }
 
     public Muffler() {
+        this.playlists = new ArrayList<>();
     }
 
 
@@ -84,6 +87,14 @@ public class Muffler {
         this.salt = salt;
     }
 
+    public List<Playlist> getPlaylists() {
+        return playlists;
+    }
+
+    public void setPlaylists(ArrayList<Playlist> playlists) {
+        this.playlists = playlists;
+    }
+
     private void hashPassword(String password) {
 
         // generate the salt
@@ -98,12 +109,9 @@ public class Muffler {
 
             // encrypt
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            String encryptedPassword = new String(Hex.encode(hash));
-            this.password = encryptedPassword;
-            String saltString = new String(Hex.encode(salt));
-            this.salt = saltString;
+            this.password = new String(Hex.encode(hash));
+            this.salt = new String(Hex.encode(salt));
 
-            System.out.println("Encrypted Pwd: " + encryptedPassword + ", Salt: " + saltString);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }

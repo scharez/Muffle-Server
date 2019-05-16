@@ -1,6 +1,7 @@
 package helper;
 
 import org.json.JSONObject;
+import utils.ConsoleColor;
 
 public class JsonBuilder {
 
@@ -21,7 +22,8 @@ public class JsonBuilder {
             .put("message", message)
             .put("content", content);
 
-        System.out.println(json.toString());
+        System.out.println();
+        System.out.println(ConsoleColor.BLUE + json.toString() + ConsoleColor.RESET);
 
         return json.toString();
     }

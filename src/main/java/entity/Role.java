@@ -1,6 +1,9 @@
 package entity;
 
-public enum Role {
-    MUFFLER, PREMUFFLER
+import javax.persistence.Enumerated;
 
+public enum Role {
+
+    @Enumerated
+    MUFFLER, PREMUFFLER
 }

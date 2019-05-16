@@ -5,28 +5,14 @@ import javax.ws.rs.core.MediaType;
 
 import annoation.NotSecure;
 import annoation.RolesAllowed;
-import entity.Role;
+import entity.Playlist;
 import transferObjects.MufflerTO;
 import repository.Repository;
 
+import java.util.List;
+
 @Path("muffle")
 public class MuffleService {
-
-    @Path("message")
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @RolesAllowed({Role.MUFFLER})
-    public String message() {
-        return " REST Service powered by scharez.at ";
-    }
-
-    @Path("test")
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @RolesAllowed({Role.PREMUFFLER})
-    public String test() {
-        return " Only Premium";
-    }
 
     /**
      * Register a new Muffler
@@ -64,22 +50,12 @@ public class MuffleService {
      * ---------------------------------------------------------------------------------------------------------------
      */
 
-
-    @Path("url")
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @NotSecure
-    public String test(@QueryParam("url") String url) {
-
-
-
-        return Repository.getInstance().test("", url);
-    }
-
-    private String getUsername (){
-
-        return "";
+    @Path("getPlaylists")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed()
+    public String getPlaylists() {
+        return Repository.getInstance().getPlaylists();
     }
 
 }
