@@ -1,8 +1,11 @@
 package service;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+
+import annoation.NotSecure;
+import annoation.RolesAllowed;
+import entity.Role;
 import transferObjects.MufflerTO;
 import repository.Repository;
 
@@ -12,8 +15,17 @@ public class MuffleService {
     @Path("message")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({Role.MUFFLER})
     public String message() {
         return " REST Service powered by scharez.at ";
+    }
+
+    @Path("test")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({Role.PREMUFFLER})
+    public String test() {
+        return " Only Premium";
     }
 
     /**
@@ -25,10 +37,11 @@ public class MuffleService {
 
     @Path("register")
     @POST
+    @NotSecure
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String registerUser(MufflerTO muffler) {
-       return Repository.getInstance().registerUser(muffler.getUsername(), muffler.getPassword(), muffler.getEmail());
+        return Repository.getInstance().registerUser(muffler.getUsername(), muffler.getPassword(), muffler.getEmail());
     }
 
     /**
@@ -40,54 +53,33 @@ public class MuffleService {
 
     @Path("login")
     @POST
+    @NotSecure
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public String loginUser(MufflerTO muffler) {
         return Repository.getInstance().loginUser(muffler.getUsername(), muffler.getPassword());
     }
 
-    /**---------------------------------------------------------------------------------------------------------------*/
+    /**
+     * ---------------------------------------------------------------------------------------------------------------
+     */
 
 
     @Path("url")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public String test(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, @QueryParam("url") String url) {
+    @NotSecure
+    public String test(@QueryParam("url") String url) {
 
 
-        // Überprüfen ob header leer ist
-        String username = getUsername(authHeader);
 
-
-        return Repository.getInstance().test(username, url);
+        return Repository.getInstance().test("", url);
     }
 
+    private String getUsername (){
 
-
-    private String getUsername(String authHeader) {
-
-        String[] auth = authHeader.split("\\s");
-
-        return auth[1];
+        return "";
     }
 
-    //private String
-
-    /*
-    Methode schreiben, wo man den Token untersucht, und dann schaut, ob er diese methode aufrufen darf.
-
-    private String lol(Role allowedRole, String authHeader) {
-
-            JwtHelper jwtbuilder = new JwtHelper();
-            private JsonBuilder jb = new JsonBuilder();
-
-            return "";
-    }
-
-     - Lehrer fragen wie das mit Custom Annotations funktioniert
-
-     - statt exception Response zurückschreiben
-     */
 }
-

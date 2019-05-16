@@ -9,6 +9,7 @@ import javax.ws.rs.ext.Provider;
 /**
  * @author Stefan Scharinger
  */
+
 @Provider
 public class HttpResponseFilter implements ContainerResponseFilter  {
 

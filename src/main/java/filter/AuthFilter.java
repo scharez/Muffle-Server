@@ -1,74 +1,99 @@
 package filter;
 
+import annoation.NotSecure;
+import annoation.RolesAllowed;
+import entity.Role;
 import helper.JsonBuilder;
+import io.jsonwebtoken.Jwts;
 import jwt.JwtHelper;
+import repository.Repository;
 
 import javax.annotation.Priority;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+import java.lang.reflect.Method;
 
-@Priority(1)
+@Priority(Priorities.AUTHENTICATION)
 @Provider
-public class AuthFilter implements ContainerResponseFilter {
+public class AuthFilter implements ContainerRequestFilter {
+
+    JsonBuilder jb = new JsonBuilder();
+    JwtHelper jwt = new JwtHelper();
+
+    private String token;
 
     @Context
     private ResourceInfo resourceInfo;
 
     @Override
-    public void filter(ContainerRequestContext rc, ContainerResponseContext responseContext){
+    public void filter(ContainerRequestContext rc){
 
-        JsonBuilder jb = new JsonBuilder();
-        JwtHelper jwt = new JwtHelper();
+        String authorizationHeader = rc.getHeaderString(HttpHeaders.AUTHORIZATION);
 
-        Response responseForInvalidRequest = validateRequest();
+        Method resourceMethod = resourceInfo.getResourceMethod();
+        
 
-        if (rc.getUriInfo().getPath().contains("login") || rc.getUriInfo().getPath().contains("register")) {
+        RolesAllowed rolesAllowed = resourceMethod.getAnnotation(RolesAllowed.class);
 
-            System.out.println("No JWT Token needed, lol");
+        if(resourceMethod.isAnnotationPresent(NotSecure.class) || resourceMethod.isAnnotationPresent(RolesAllowed.class)) {
 
-            return;
+            if(resourceMethod.isAnnotationPresent(NotSecure.class)) {
+                return;
+            } else {
+
+                try {
+
+                    token = authorizationHeader.substring("Bearer".length()).trim();
+                    jwt.checkSubject(token);
+
+                    if (isUserInRole(jwt.getRole(token), rolesAllowed.value())) {
+                        Repository.getInstance().saveHeader(token);
+                    } else {
+
+                        Response res = validateRequest("You are not allowed");
+                        rc.abortWith(res);
+                    }
+
+
+                } catch (Exception ex) {
+                    Response res = validateRequest("Auth-Token Error");
+                    rc.abortWith(res);
+                }
+            }
+
         } else {
 
-            try {
+            Response responseForInvalidRequest = validateRequest("Server Error");
 
-                String [] auth = rc.getHeaderString("Authorization").split("\\s");
-
-                jwt.checkSubject(auth[1]);
-
-
-
-            } catch ( Exception ex ) {
-
-                System.out.println("try2");
-
-                rc.abortWith(responseForInvalidRequest);
-
-                //System.out.println(responseForInvalidRequest.getEntity());
-                //rc.abortWith();
-            }
+            rc.abortWith(responseForInvalidRequest);
         }
     }
 
+    private boolean isUserInRole(Role userRole, Role[] roles) {
+
+        for(Role role: roles) {
+            if(role.equals(userRole))
+                return true;
+        }
+        return false;
+    }
 
 
-    private Response validateRequest() {
+    private Response validateRequest(String content) {
 
-            String msg = String.format("HAHA");
+            String msg = String.format(jb.generateResponse("Error", "Unauthorized",content));
             CacheControl cc = new CacheControl();
             cc.setNoStore(true);
-            Response response = Response.status(Response.Status.NOT_IMPLEMENTED)
+            Response response = Response.status(Response.Status.UNAUTHORIZED)
                     .cacheControl(cc)
                     .entity(msg)
                     .build();
             return response;
     }
-
-    // Mit Switch Role überprüfen und mit einem Pattern mit dem Path vergleichen
 }
 

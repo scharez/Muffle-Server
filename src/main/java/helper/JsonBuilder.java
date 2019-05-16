@@ -21,6 +21,8 @@ public class JsonBuilder {
             .put("message", message)
             .put("content", content);
 
+        System.out.println(json.toString());
+
         return json.toString();
     }
 }

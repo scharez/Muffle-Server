@@ -5,7 +5,6 @@ import entity.Muffler;
 import entity.Role;
 import entity.Song;
 import helper.JsonBuilder;
-import helper.MP3Downloader;
 import jwt.JwtHelper;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -24,16 +23,19 @@ public class Repository {
 
     private static Repository instance = null;
 
-    MP3Downloader dw = new MP3Downloader();
-    JsonBuilder jb = new JsonBuilder();
+    private JsonBuilder jb = new JsonBuilder();
+    private JwtHelper jwt = new JwtHelper();
+
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("MufflePU");
     private EntityManager em = emf.createEntityManager();
-    private JwtHelper jwtb = new JwtHelper();
 
-    private Repository() {
-    }
+    private ExecutorService executor = Executors.newCachedThreadPool();
 
-    public static Repository getInstance() {
+    private String token;
+
+    private Repository() {}
+
+    public static synchronized Repository getInstance() {
         if (instance == null) {
             instance = new Repository();
         }
@@ -50,8 +52,6 @@ public class Repository {
      */
 
     public String registerUser(String username, String password, String email) {
-
-
 
         Muffler user = new Muffler(username, password, email);
 
@@ -107,68 +107,70 @@ public class Repository {
             e.printStackTrace();
         }
 
-        String jwtToken = jwtb.create(user.getUsername());
+        String jwtToken = jwt.create(user.getUsername(), user.getRole());
 
         return jb.generateResponse("", "jawoi", jwtToken); //Token und stuff
     }
 
 
-
-
-
-
-
-
     public String test(String username, String url) {
-
-        ExecutorService executor = Executors.newCachedThreadPool();
-        executor.execute(() -> {
-
-        });
-
-        System.out.println(dw.download("", url));
 
         //Zuerst soll in der Datenbank überprüft werden, ob der song schonmal downgeloaded worden ist
 
+        Runtime rt = Runtime.getRuntime();
 
-        return "";
+        /*
+        executor.execute(() -> {
+            try {
+                rt.exec("youtube-dl -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + url);
+            } catch (IOException e) {
+
+
+            }
+
+        });
+
+        */
+
+        /*value="${jdbc.url}"  In persistence xml file*/
+
+        // youtube-dl -o "/Users/scharez/Desktop/%(title)s.%(ext)s" -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 https://www.youtube.com/watch?v=Xm8-bw3nLMA
+
+
+
+
+
+        return jb.generateResponse("","","");
     }
 
+    /**
+     *
+     * @param token
+     */
+    public void saveHeader(String token) {
+            this.token = token;
+    }
 
-    /*
-    todo Muffle Entity Namedqueries machen
+    /**
+     *
+     * @return
      */
 
+    private Muffler getMuffler() {
 
+        String username = jwt.checkSubject(this.token);
 
+        TypedQuery<Muffler> query = em.createQuery("SELECT m FROM Muffler m WHERE m.username = :username", Muffler.class);
+        query.setParameter("username", username);
 
+        List<Muffler> result = query.getResultList();
 
+        // check if user exists, but user should exist bc he has a token lol
+        if (result.size() == 0) {
+            return null;
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    public String getPlaylists(String username) {
-
-        return "";
+        return result.get(0);
     }
 
-    public String addNewSong(String username, String playlistName, Song song) {
-
-
-        return "";
-    }
-
-    public String createNewPlaylist(String user, String name) {
-
-        return "";
-    }
 }
