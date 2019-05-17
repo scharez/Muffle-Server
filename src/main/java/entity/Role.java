@@ -5,5 +5,5 @@ import javax.persistence.Enumerated;
 public enum Role {
 
     @Enumerated
-    MUFFLER, PREMUFFLER
+    MUFFLER, PREMUFFLER, EVERYONE
 }

@@ -117,28 +117,26 @@ public class Repository {
             e.printStackTrace();
         }
 
+        user.setRole(Role.MUFFLER);
+
         String jwtToken = jwt.create(user.getUsername(), user.getRole());
 
         return jb.generateResponse("success", "login", jwtToken);
     }
 
 
-    public String test(String username, String url) {
+    public String addSongFromURL(String url, Playlist playlist) {
 
         //Zuerst soll in der Datenbank überprüft werden, ob der song schonmal downgeloaded worden ist
 
         Runtime rt = Runtime.getRuntime();
-
         /*
         executor.execute(() -> {
             try {
                 rt.exec("youtube-d
                 l -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + url);
             } catch (IOException e) {
-
-
             }
-
         });
 
         */
@@ -146,10 +144,6 @@ public class Repository {
         /*value="${jdbc.url}"  In persistence xml file*/
 
         // youtube-dl -o "/Users/scharez/Desktop/%(title)s.%(ext)s" -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 https://www.youtube.com/watch?v=Xm8-bw3nLMA
-
-
-
-
 
         return jb.generateResponse("","","");
     }
@@ -159,11 +153,21 @@ public class Repository {
 
         Muffler m = getMuffler();
 
+        //System.out.println(m.getUsername());
+
+        /*
         if(Objects.requireNonNull(m).getPlaylists() == null) {
             return jb.generateResponse("error", "getPlaylists", "No Playlists");
         }
 
-        return m.getPlaylists().toString();
+         */
+
+        return "";
+    }
+
+    public String creatPlaylist() {
+
+        return "";
     }
 
     public String getSongs() {
@@ -209,5 +213,8 @@ public class Repository {
         return result.get(0);
     }
 
+    public String refreshPlaylist(Playlist playlist) {
 
+        return null;
+    }
 }

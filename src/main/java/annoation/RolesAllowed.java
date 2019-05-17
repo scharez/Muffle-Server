@@ -8,5 +8,5 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RolesAllowed {
 
-    Role[] value() default Role.MUFFLER;
+    Role[] value() default Role.EVERYONE;
 }

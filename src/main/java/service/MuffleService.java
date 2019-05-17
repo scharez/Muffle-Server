@@ -9,8 +9,6 @@ import entity.Playlist;
 import transferObjects.MufflerTO;
 import repository.Repository;
 
-import java.util.List;
-
 @Path("muffle")
 public class MuffleService {
 
@@ -50,12 +48,34 @@ public class MuffleService {
      * ---------------------------------------------------------------------------------------------------------------
      */
 
+    @Path("addSongFromURL/{url}")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed
+    public String addSongFromURL(@PathParam("url")  String url, Playlist playlist) {
+        return Repository.getInstance().addSongFromURL(url, playlist);
+    }
+
+
+    @Path("refreshPlaylist")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed
+    public String refreshPlaylist(Playlist playlist) {
+        return Repository.getInstance().refreshPlaylist(playlist);
+    }
+
+    @Path("createPlaylist")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed
+    public String createPlaylist() { return Repository.getInstance().creatPlaylist(); }
+
     @Path("getPlaylists")
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @RolesAllowed()
-    public String getPlaylists() {
-        return Repository.getInstance().getPlaylists();
-    }
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed
+    public String getPlaylists() { return Repository.getInstance().getPlaylists(); }
 
 }

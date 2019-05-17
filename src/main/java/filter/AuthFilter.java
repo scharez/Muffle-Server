@@ -30,18 +30,18 @@ public class AuthFilter implements ContainerRequestFilter {
     private ResourceInfo resourceInfo;
 
     @Override
-    public void filter(ContainerRequestContext rc){
+    public void filter(ContainerRequestContext rc) {
 
         String authorizationHeader = rc.getHeaderString(HttpHeaders.AUTHORIZATION);
 
         Method resourceMethod = resourceInfo.getResourceMethod();
-        
+
 
         RolesAllowed rolesAllowed = resourceMethod.getAnnotation(RolesAllowed.class);
 
-        if(resourceMethod.isAnnotationPresent(NotSecure.class) || resourceMethod.isAnnotationPresent(RolesAllowed.class)) {
+        if (resourceMethod.isAnnotationPresent(NotSecure.class) || resourceMethod.isAnnotationPresent(RolesAllowed.class)) {
 
-            if(resourceMethod.isAnnotationPresent(NotSecure.class)) {
+            if (resourceMethod.isAnnotationPresent(NotSecure.class)) {
                 return;
             } else {
 
@@ -76,12 +76,8 @@ public class AuthFilter implements ContainerRequestFilter {
 
     private boolean isUserInRole(Role userRole, Role[] roles) {
 
-        if(userRole == Role.PREMUFFLER) {  // highest user rank
-            return true;
-        }
-
-        for(Role role: roles) {
-            if(role.equals(userRole))
+        for (Role role : roles) {
+            if (role.equals(userRole) || role.equals(Role.EVERYONE))
                 return true;
         }
         return false;
@@ -90,14 +86,14 @@ public class AuthFilter implements ContainerRequestFilter {
 
     private Response validateRequest(String content) {
 
-            String msg = String.format(jb.generateResponse("Error", "Unauthorized",content));
-            CacheControl cc = new CacheControl();
-            cc.setNoStore(true);
-            Response response = Response.status(Response.Status.UNAUTHORIZED)
-                    .cacheControl(cc)
-                    .entity(msg)
-                    .build();
-            return response;
+        String msg = String.format(jb.generateResponse("Error", "Unauthorized", content));
+        CacheControl cc = new CacheControl();
+        cc.setNoStore(true);
+        Response response = Response.status(Response.Status.UNAUTHORIZED)
+                .cacheControl(cc)
+                .entity(msg)
+                .build();
+        return response;
     }
 }
 
