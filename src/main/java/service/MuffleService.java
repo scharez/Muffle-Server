@@ -70,7 +70,7 @@ public class MuffleService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed
-    public String createPlaylist() { return Repository.getInstance().creatPlaylist(); }
+    public String createPlaylist(Playlist playlist) { return Repository.getInstance().creatPlaylist(playlist); }
 
     @Path("getPlaylists")
     @GET

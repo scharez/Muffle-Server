@@ -35,7 +35,7 @@ public class Repository {
 
     private String token;
 
-    private Repository() {}
+    private Repository() { }
 
     public static synchronized Repository getInstance() {
         if (instance == null) {
@@ -151,29 +151,35 @@ public class Repository {
 
     public String getPlaylists() {
 
-        Muffler m = getMuffler();
+        Muffler muffler = getMuffler();
 
-        //System.out.println(m.getUsername());
+        List<Playlist> result = Objects.requireNonNull(muffler).getPlaylists();
 
-        /*
-        if(Objects.requireNonNull(m).getPlaylists() == null) {
+        if(result.size() == 0) {
             return jb.generateResponse("error", "getPlaylists", "No Playlists");
         }
 
-         */
-
-        return "";
+        return result.toString();
     }
 
-    public String creatPlaylist() {
+    public String creatPlaylist(Playlist playlist) {
 
-        return "";
+        Muffler muffler = getMuffler();
+
+        if(Objects.requireNonNull(muffler).getPlaylists().contains(playlist)) {
+            return jb.generateResponse("error", "createPlaylist", playlist.getName() + " already exist");
+        }
+
+        Objects.requireNonNull(muffler).getPlaylists().add(playlist);
+
+        em.getTransaction().begin();
+        em.merge(muffler);
+        em.getTransaction().commit();
+
+        return jb.generateResponse("success", "createPlaylist", playlist.getName() + " created");
     }
 
     public String getSongs() {
-
-        Muffler m = getMuffler();
-
 
         return "";
 
@@ -193,7 +199,7 @@ public class Repository {
     /**
      * get a User from DB with his Token
      *
-     * @return
+     * @return Muffler
      */
 
     private Muffler getMuffler() {

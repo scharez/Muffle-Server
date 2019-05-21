@@ -36,7 +36,6 @@ public class AuthFilter implements ContainerRequestFilter {
 
         Method resourceMethod = resourceInfo.getResourceMethod();
 
-
         RolesAllowed rolesAllowed = resourceMethod.getAnnotation(RolesAllowed.class);
 
         if (resourceMethod.isAnnotationPresent(NotSecure.class) || resourceMethod.isAnnotationPresent(RolesAllowed.class)) {
@@ -86,14 +85,13 @@ public class AuthFilter implements ContainerRequestFilter {
 
     private Response validateRequest(String content) {
 
-        String msg = String.format(jb.generateResponse("Error", "Unauthorized", content));
+        String msg = jb.generateResponse("Error", "Unauthorized", content);
         CacheControl cc = new CacheControl();
         cc.setNoStore(true);
-        Response response = Response.status(Response.Status.UNAUTHORIZED)
+        return Response.status(Response.Status.UNAUTHORIZED)
                 .cacheControl(cc)
                 .entity(msg)
                 .build();
-        return response;
     }
 }
 
