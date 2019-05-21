@@ -4,7 +4,7 @@ import annoation.NotSecure;
 import annoation.RolesAllowed;
 import entity.Role;
 import helper.JsonBuilder;
-import jwt.JwtHelper;
+import helper.JwtHelper;
 import repository.Repository;
 
 import javax.annotation.Priority;
@@ -21,8 +21,8 @@ import java.lang.reflect.Method;
 @Provider
 public class AuthFilter implements ContainerRequestFilter {
 
-    JsonBuilder jb = new JsonBuilder();
-    JwtHelper jwt = new JwtHelper();
+    private JsonBuilder jb = new JsonBuilder();
+    private JwtHelper jwt = new JwtHelper();
 
     private String token;
 
@@ -58,7 +58,6 @@ public class AuthFilter implements ContainerRequestFilter {
                         rc.abortWith(res);
                     }
 
-
                 } catch (Exception ex) {
                     Response res = validateRequest("Auth-Token Error");
                     rc.abortWith(res);
@@ -93,5 +92,7 @@ public class AuthFilter implements ContainerRequestFilter {
                 .entity(msg)
                 .build();
     }
+
+    // TODO instead of String Response send a real Response with a Response as a RETURN!
 }
 

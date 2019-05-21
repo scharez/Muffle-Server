@@ -1,7 +1,6 @@
-package jwt;
+package helper;
 
 import entity.Role;
-import helper.PropertyLoader;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
@@ -40,9 +39,7 @@ public class JwtHelper {
     }
 
     public Role getRole(String token) {
-
         String role;
-
         role =  Jwts.parser()
                 .setSigningKey(pl.prop.getProperty("jwt.key"))
                 .parseClaimsJws(token)

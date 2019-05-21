@@ -8,6 +8,8 @@ import annoation.RolesAllowed;
 import entity.Playlist;
 import transferObjects.MufflerTO;
 import repository.Repository;
+import transferObjects.PlaylistTO;
+import transferObjects.SongTO;
 
 @Path("muffle")
 public class MuffleService {
@@ -44,38 +46,55 @@ public class MuffleService {
         return Repository.getInstance().loginUser(muffler.getUsername(), muffler.getPassword());
     }
 
+    @GET
+    @NotSecure
+    @Produces(MediaType.APPLICATION_JSON)
+    public String confirmMail() {
+
+        return Repository.getInstance().confirmMail();
+    }
     /**
      * ---------------------------------------------------------------------------------------------------------------
      */
 
-    @Path("addSongFromURL/{url}")
+    @Path("addSongFromURL")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed
-    public String addSongFromURL(@PathParam("url")  String url, Playlist playlist) {
-        return Repository.getInstance().addSongFromURL(url, playlist);
+    public String addSongFromURL(SongTO song) {
+        return Repository.getInstance().addSongFromURL(song);
     }
 
 
     @Path("refreshPlaylist")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed
-    public String refreshPlaylist(Playlist playlist) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed()
+    public String refreshPlaylist(PlaylistTO playlist) {
         return Repository.getInstance().refreshPlaylist(playlist);
     }
 
     @Path("createPlaylist")
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed
-    public String createPlaylist(Playlist playlist) { return Repository.getInstance().creatPlaylist(playlist); }
+    public String createPlaylist(PlaylistTO playlist) { return Repository.getInstance().creatPlaylist(playlist); }
 
     @Path("getPlaylists")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed
     public String getPlaylists() { return Repository.getInstance().getPlaylists(); }
+
+    @Path("getSongsFromPlaylist")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed
+    public String getSongs(PlaylistTO playlist) { return Repository.getInstance().getSongs(playlist); }
 
 }

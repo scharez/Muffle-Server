@@ -1,5 +1,7 @@
 package mail;
 
+import helper.PropertyLoader;
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -7,6 +9,16 @@ import javax.mail.Transport;
 
 public class Mail {
 
+    private PropertyLoader pl = new PropertyLoader();
+
+    public Mail() {
+
+
+        this.emailUser = pl.prop.getProperty("mail.user");
+        this.emailPassword = pl.prop.getProperty("mail.password");
+    }
+
+    private String emailUser;
     private String emailPassword;
     private Session session;
 
@@ -15,7 +27,7 @@ public class Mail {
         message.setContent(mailBody, "text/html");
 
         Transport transport = session.getTransport("smtp");
-        transport.connect("smtp.gmail.com", "dr.boozeteam@gmail.com", emailPassword);
+        transport.connect("mail.scharez.at", "muffle@scharez.at", emailPassword);
         transport.sendMessage(message, message.getAllRecipients());
         transport.close();
     }

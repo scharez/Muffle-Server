@@ -6,8 +6,10 @@ import entity.Playlist;
 import entity.Role;
 import entity.Song;
 import helper.JsonBuilder;
-import jwt.JwtHelper;
+import helper.JwtHelper;
 import org.bouncycastle.util.encoders.Hex;
+import transferObjects.PlaylistTO;
+import transferObjects.SongTO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -16,6 +18,7 @@ import javax.persistence.TypedQuery;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -125,8 +128,8 @@ public class Repository {
     }
 
 
-    public String addSongFromURL(String url, Playlist playlist) {
-
+    public String addSongFromURL(SongTO song) {
+        
         //Zuerst soll in der Datenbank überprüft werden, ob der song schonmal downgeloaded worden ist
 
         Runtime rt = Runtime.getRuntime();
@@ -153,36 +156,61 @@ public class Repository {
 
         Muffler muffler = getMuffler();
 
-        List<Playlist> result = Objects.requireNonNull(muffler).getPlaylists();
+        List<Playlist> result = muffler.getPlaylists();
 
         if(result.size() == 0) {
-            return jb.generateResponse("error", "getPlaylists", "No Playlists");
+            return jb.generateResponse("hint", "getPlaylists", "No Playlists");
         }
 
         return result.toString();
     }
 
-    public String creatPlaylist(Playlist playlist) {
+    public String creatPlaylist(PlaylistTO playlist) {
 
         Muffler muffler = getMuffler();
 
-        if(Objects.requireNonNull(muffler).getPlaylists().contains(playlist)) {
-            return jb.generateResponse("error", "createPlaylist", playlist.getName() + " already exist");
+        for (Playlist p : muffler.getPlaylists()) {
+            if(p.getName().equalsIgnoreCase(playlist.getPlaylistName())) {
+                return jb.generateResponse("hint", "createPlaylist", playlist.getPlaylistName() + " already exist");
+            }
         }
 
-        Objects.requireNonNull(muffler).getPlaylists().add(playlist);
+        Playlist p = new Playlist();
+
+        p.setName(playlist.getPlaylistName());
+
+        muffler.getPlaylists().add(p);
 
         em.getTransaction().begin();
         em.merge(muffler);
         em.getTransaction().commit();
 
-        return jb.generateResponse("success", "createPlaylist", playlist.getName() + " created");
+        return jb.generateResponse("hint", "createPlaylist", playlist.getPlaylistName() + " created");
     }
 
-    public String getSongs() {
+    public String getSongs(PlaylistTO playlist) {
 
-        return "";
+        Muffler muffler = getMuffler();
+        List<Song> songs = null;
 
+        List<Playlist> result = muffler.getPlaylists();
+
+        if(result.size() == 0) {
+            return jb.generateResponse("hint", "getPlaylists", "No Playlists");
+        }
+
+        for(Playlist p : result) {
+            if(p.getName().equals(playlist.getPlaylistName())) {
+                songs = p.getSongs();
+            } else {
+                return jb.generateResponse("error", "getSongs", "Playlist contains no Songs");
+            }
+        }
+
+
+
+
+        return songs.toString();
     }
 
 
@@ -219,7 +247,12 @@ public class Repository {
         return result.get(0);
     }
 
-    public String refreshPlaylist(Playlist playlist) {
+    public String refreshPlaylist(PlaylistTO playlist) {
+
+        return null;
+    }
+
+    public String confirmMail() {
 
         return null;
     }
