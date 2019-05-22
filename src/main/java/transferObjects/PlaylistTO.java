@@ -2,17 +2,21 @@ package transferObjects;
 
 public class PlaylistTO {
 
-    private String playlistName;
+    private String name;
 
-    public PlaylistTO(String playlistName) {
-        this.playlistName = playlistName;
+    public PlaylistTO() {
+
     }
 
-    public String getPlaylistName() {
-        return playlistName;
+    public PlaylistTO(String name) {
+        this.name = name;
     }
 
-    public void setPlaylistName(String playlistName) {
-        this.playlistName = playlistName;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

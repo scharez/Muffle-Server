@@ -4,8 +4,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import annoation.NotSecure;
-import annoation.RolesAllowed;
-import entity.Playlist;
+import annoation.Secure;
 import transferObjects.MufflerTO;
 import repository.Repository;
 import transferObjects.PlaylistTO;
@@ -46,12 +45,13 @@ public class MuffleService {
         return Repository.getInstance().loginUser(muffler.getUsername(), muffler.getPassword());
     }
 
+    @Path("verify")
     @GET
     @NotSecure
-    @Produces(MediaType.APPLICATION_JSON)
-    public String confirmMail() {
+    @Produces(MediaType.TEXT_HTML)
+    public String confirmMail(@QueryParam("token") String token) {
 
-        return Repository.getInstance().confirmMail();
+        return Repository.getInstance().confirmMail(token);
     }
     /**
      * ---------------------------------------------------------------------------------------------------------------
@@ -61,17 +61,16 @@ public class MuffleService {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed
+    @Secure
     public String addSongFromURL(SongTO song) {
         return Repository.getInstance().addSongFromURL(song);
     }
-
 
     @Path("refreshPlaylist")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed()
+    @Secure
     public String refreshPlaylist(PlaylistTO playlist) {
         return Repository.getInstance().refreshPlaylist(playlist);
     }
@@ -80,21 +79,21 @@ public class MuffleService {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed
+    @Secure
     public String createPlaylist(PlaylistTO playlist) { return Repository.getInstance().creatPlaylist(playlist); }
 
     @Path("getPlaylists")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed
+    @Secure
     public String getPlaylists() { return Repository.getInstance().getPlaylists(); }
 
     @Path("getSongsFromPlaylist")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed
+    @Secure
     public String getSongs(PlaylistTO playlist) { return Repository.getInstance().getSongs(playlist); }
 
 }

@@ -21,6 +21,8 @@ public class Muffler {
     private String password;
     private String email;
 
+    private boolean verified;
+
     private Role role;
 
     private String salt;
@@ -28,14 +30,20 @@ public class Muffler {
     @OneToMany
     private List<Playlist> playlists;
 
+
+    @OneToOne(cascade = CascadeType.PERSIST)
+    private VerificationToken verificationToken;
+
     public Muffler(String username, String password, String email) {
         this.username = username;
         hashPassword(password);
         this.email = email;
+        this.verified = false;
     }
 
     public Muffler() {
         this.playlists = new ArrayList<>();
+        this.verified = false;
     }
 
 
@@ -115,5 +123,21 @@ public class Muffler {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
+    public VerificationToken getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(VerificationToken verificationToken) {
+        this.verificationToken = verificationToken;
     }
 }

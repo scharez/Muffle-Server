@@ -20,7 +20,7 @@ public class JwtHelper {
                 .signWith(SignatureAlgorithm.HS256, pl.prop.getProperty("jwt.key"))
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                //.setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS * 1000))
                 .claim("role", role.toString())
                 .compact();
     }

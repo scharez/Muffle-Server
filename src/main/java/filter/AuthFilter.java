@@ -1,7 +1,7 @@
 package filter;
 
 import annoation.NotSecure;
-import annoation.RolesAllowed;
+import annoation.Secure;
 import entity.Role;
 import helper.JsonBuilder;
 import helper.JwtHelper;
@@ -36,9 +36,9 @@ public class AuthFilter implements ContainerRequestFilter {
 
         Method resourceMethod = resourceInfo.getResourceMethod();
 
-        RolesAllowed rolesAllowed = resourceMethod.getAnnotation(RolesAllowed.class);
+        Secure secure = resourceMethod.getAnnotation(Secure.class);
 
-        if (resourceMethod.isAnnotationPresent(NotSecure.class) || resourceMethod.isAnnotationPresent(RolesAllowed.class)) {
+        if (resourceMethod.isAnnotationPresent(NotSecure.class) || resourceMethod.isAnnotationPresent(Secure.class)) {
 
             if (resourceMethod.isAnnotationPresent(NotSecure.class)) {
                 return;
@@ -47,9 +47,9 @@ public class AuthFilter implements ContainerRequestFilter {
                 try {
 
                     token = authorizationHeader.substring("Bearer".length()).trim();
-                    jwt.checkSubject(token);
+                    System.out.println(jwt.checkSubject(token));
 
-                    if (isUserInRole(jwt.getRole(token), rolesAllowed.value())) {
+                    if (isUserInRole(jwt.getRole(token), secure.value())) {
 
                         Repository.getInstance().saveHeader(token);
                     } else {

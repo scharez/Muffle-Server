@@ -5,7 +5,9 @@ public class SongTO {
     private String url;
     private String playlistName;
 
+    public SongTO() {
 
+    }
 
     public String getUrl() {
         return url;

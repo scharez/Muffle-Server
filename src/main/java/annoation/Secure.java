@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RolesAllowed {
+public @interface Secure {
 
     Role[] value() default Role.EVERYONE;
 }

@@ -1,12 +1,10 @@
 package repository;
 
-import entity.Muffler;
+import entity.*;
 
-import entity.Playlist;
-import entity.Role;
-import entity.Song;
 import helper.JsonBuilder;
 import helper.JwtHelper;
+import mail.Mail;
 import org.bouncycastle.util.encoders.Hex;
 import transferObjects.PlaylistTO;
 import transferObjects.SongTO;
@@ -18,9 +16,8 @@ import javax.persistence.TypedQuery;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,6 +27,7 @@ public class Repository {
 
     private JsonBuilder jb = new JsonBuilder();
     private JwtHelper jwt = new JwtHelper();
+    private Mail mailer = new Mail();
 
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("MufflePU");
     private EntityManager em = emf.createEntityManager();
@@ -38,7 +36,8 @@ public class Repository {
 
     private String token;
 
-    private Repository() { }
+    private Repository() {
+    }
 
     public static synchronized Repository getInstance() {
         if (instance == null) {
@@ -52,15 +51,16 @@ public class Repository {
      *
      * @param username username of the user
      * @param password password of the user
-     * @param email email of the user
+     * @param email    email of the user
      * @return a custom json
      */
 
     public String registerUser(String username, String password, String email) {
 
         Muffler user = new Muffler(username, password, email);
-
         user.setRole(Role.MUFFLER);
+
+        VerificationToken verificationToken = new VerificationToken(user);
 
         TypedQuery<Long> queryUniqueName = em.createQuery("SELECT COUNT(m) FROM Muffler m WHERE m.username = :username", Long.class);
         queryUniqueName.setParameter("username", username);
@@ -69,21 +69,25 @@ public class Repository {
         queryUniqueEmail.setParameter("email", email);
 
         long numberOfEntriesName = queryUniqueName.getSingleResult();
-        long numberOfEntriesEmail = queryUniqueName.getSingleResult();
+        long numberOfEntriesEmail = queryUniqueEmail.getSingleResult();
 
-        if(numberOfEntriesName != 0) {
-            return jb.generateResponse("error","register","Username already exists");
+        if (numberOfEntriesName != 0) {
+            return jb.generateResponse("error", "register", "Username already exists");
         }
 
-        if(numberOfEntriesEmail != 0) {
-            return jb.generateResponse("error","register","Email already exists");
+        if (numberOfEntriesEmail != 0) {
+            return jb.generateResponse("error", "register", "Email already exists");
         }
+
+        user.setVerificationToken(verificationToken);
+
+        executor.execute(() -> mailer.sendConfirmation(verificationToken, user));
 
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
 
-        return jb.generateResponse("success","register","Successfully Registered");
+        return jb.generateResponse("success", "register", "Successfully Registered");
     }
 
     /**
@@ -102,10 +106,14 @@ public class Repository {
         List<Muffler> result = query.getResultList();
 
         if (result.size() == 0) {
-            return jb.generateResponse("error","login","User does not exist"); // Error
+            return jb.generateResponse("error", "login", "User does not exist"); // Error
         }
 
         Muffler user = result.get(0);
+
+        if(!user.isVerified()) {
+            return jb.generateResponse("error", "login", "Please confirm your email first");
+        }
 
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -114,7 +122,7 @@ public class Repository {
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
             if (!new String(Hex.encode(hash)).equals(user.getPassword())) {
-                return jb.generateResponse("error","login","Wrong Password");
+                return jb.generateResponse("error", "login", "Wrong Password");
             }
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -127,9 +135,50 @@ public class Repository {
         return jb.generateResponse("success", "login", jwtToken);
     }
 
+    public String confirmMail(String token) {
+
+        TypedQuery<VerificationToken> queryToken = em.createQuery("SELECT v FROM VerificationToken v WHERE v.token = :token", VerificationToken.class);
+        queryToken.setParameter("token", token);
+
+        List<VerificationToken> tokenList = queryToken.getResultList();
+
+        if (tokenList.size() == 0) {
+            return "<html> " + "<title>" + "Error" + "</title>"
+                    + "<body><center><h1>" + "Something went wrong" + "</h1></center></body>" + "</html> ";
+        }
+
+        VerificationToken verifyToken = tokenList.get(0);
+
+        Date currentDate = new Date();
+        Date tokenDate = verifyToken.getExpire();
+
+        if (tokenDate.compareTo(currentDate) >= 0) {
+            Muffler muffler = verifyToken.getMuffler();
+
+            muffler.setVerified(true);
+
+            em.getTransaction().begin();
+            em.remove(verifyToken);
+            em.getTransaction().commit();
+
+            return "<html> " + "<title>" + "Success" + "</title>"
+                    + "<body><center><h1>" + muffler.getUsername() + " your are verified!"+ "</h1></center></body>" + "</html> ";
+        }
+
+        return "<html> " + "<title>" + "Error" + "</title>"
+                + "<body><center><h1>" + " Token has expired, please register again!"+ "</h1></center></body>" + "</html> ";
+
+    }
+
 
     public String addSongFromURL(SongTO song) {
-        
+
+        Muffler muffler = getMuffler();
+
+        if (muffler == null) {
+            return jb.generateResponse("error", "Server", "Maybe you login again");
+        }
+
         //Zuerst soll in der Datenbank überprüft werden, ob der song schonmal downgeloaded worden ist
 
         Runtime rt = Runtime.getRuntime();
@@ -148,7 +197,7 @@ public class Repository {
 
         // youtube-dl -o "/Users/scharez/Desktop/%(title)s.%(ext)s" -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 https://www.youtube.com/watch?v=Xm8-bw3nLMA
 
-        return jb.generateResponse("","","");
+        return jb.generateResponse("lol", "lol", "lol");
     }
 
 
@@ -156,9 +205,14 @@ public class Repository {
 
         Muffler muffler = getMuffler();
 
+
+        if (muffler == null) {
+            return jb.generateResponse("error", "Server", "Maybe you login again");
+        }
+
         List<Playlist> result = muffler.getPlaylists();
 
-        if(result.size() == 0) {
+        if (result.size() == 0) {
             return jb.generateResponse("hint", "getPlaylists", "No Playlists");
         }
 
@@ -169,15 +223,19 @@ public class Repository {
 
         Muffler muffler = getMuffler();
 
+        if (muffler == null) {
+            return jb.generateResponse("error", "Server", "Maybe you login again");
+        }
+
         for (Playlist p : muffler.getPlaylists()) {
-            if(p.getName().equalsIgnoreCase(playlist.getPlaylistName())) {
-                return jb.generateResponse("hint", "createPlaylist", playlist.getPlaylistName() + " already exist");
+            if (p.getName().equalsIgnoreCase(playlist.getName())) {
+                return jb.generateResponse("hint", "createPlaylist", playlist.getName() + " already exist");
             }
         }
 
         Playlist p = new Playlist();
 
-        p.setName(playlist.getPlaylistName());
+        p.setName(playlist.getName());
 
         muffler.getPlaylists().add(p);
 
@@ -185,29 +243,32 @@ public class Repository {
         em.merge(muffler);
         em.getTransaction().commit();
 
-        return jb.generateResponse("hint", "createPlaylist", playlist.getPlaylistName() + " created");
+        return jb.generateResponse("hint", "createPlaylist", playlist.getName() + " created");
     }
 
     public String getSongs(PlaylistTO playlist) {
 
         Muffler muffler = getMuffler();
+
+        if (muffler == null) {
+            return jb.generateResponse("error", "Server", "Maybe you login again");
+        }
+
         List<Song> songs = null;
 
         List<Playlist> result = muffler.getPlaylists();
 
-        if(result.size() == 0) {
+        if (result.size() == 0) {
             return jb.generateResponse("hint", "getPlaylists", "No Playlists");
         }
 
-        for(Playlist p : result) {
-            if(p.getName().equals(playlist.getPlaylistName())) {
+        for (Playlist p : result) {
+            if (p.getName().equals(playlist.getName())) {
                 songs = p.getSongs();
             } else {
-                return jb.generateResponse("error", "getSongs", "Playlist contains no Songs");
+                return jb.generateResponse("hint", "getSongs", "Playlist contains no Songs");
             }
         }
-
-
 
 
         return songs.toString();
@@ -221,7 +282,7 @@ public class Repository {
      */
 
     public void saveHeader(String token) {
-            this.token = token;
+        this.token = token;
     }
 
     /**
@@ -249,10 +310,11 @@ public class Repository {
 
     public String refreshPlaylist(PlaylistTO playlist) {
 
-        return null;
-    }
+        Muffler muffler = getMuffler();
 
-    public String confirmMail() {
+        if (muffler == null) {
+            return jb.generateResponse("error", "Server", "Maybe you login again");
+        }
 
         return null;
     }
