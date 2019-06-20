@@ -44,13 +44,10 @@ public class Mail {
                     Message.RecipientType.TO, InternetAddress.parse(user.getEmail()));
             message.setSubject("Activate your Muffle-Account");
 
-            String mailBody =
-                    "Hello " + user.getUsername() + " Please confirm your email<br>" +
-                            "<a href='" + "http://localhost:8080/rest/muffle/verify/?token=" + verificationToken.getToken()
-                            + "'>Confirm your email</a>";
+            String mailBody =  "<html><head> <meta charset=\"UTF-8\"> <style> * { font-family: \"Roboto\", \"Helvetica Neue\", sans-serif; text-align: center } body { background-image: url(\"https://muffle.scharez.at/assets/web/background.jpg\"); background-repeat: no-repeat; background-size: cover } .middlePosition { width: 50%; height: 45vh; position: absolute; left: 50%; top: 30%; transform: translate(-50%, -50%); border-radius: 2em; padding: 2em } .middlePosition h1 { color: #ffddab } .middlePosition p { color: rgba(255, 221, 171, 0.7) } .middlePosition button { border-radius: 4em; border: 1px solid #ffab2d; opacity: .6; transition: opacity .4s; background-color: #ffab2d; padding: .8em; color: white; margin-top: 20px; font-size: 15px; cursor: pointer;} </style></head><body> <div class=\"middlePosition\"> <img src=\"https://muffle.scharez.at/assets/web/logo.svg\" width=\"40%\"> <h1>" + user.getUsername().toUpperCase() + ", verify your Email</h1> <a href=\"localhost:8080/rest/muffle/verify?token="+ verificationToken.getToken() + "\"><button>Verify</button></a> </div></body></html>";
 
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
-            mimeBodyPart.setContent(mailBody, "text/html");
+            mimeBodyPart.setContent(mailBody, "text/html; charset=utf-8");
 
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(mimeBodyPart);

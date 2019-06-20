@@ -6,9 +6,12 @@ import helper.JsonBuilder;
 import helper.JwtHelper;
 import mail.Mail;
 import org.bouncycastle.util.encoders.Hex;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import transferObjects.PlaylistTO;
 import transferObjects.SongTO;
 
+import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -16,6 +19,7 @@ import javax.persistence.TypedQuery;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -143,8 +147,7 @@ public class Repository {
         List<VerificationToken> tokenList = queryToken.getResultList();
 
         if (tokenList.size() == 0) {
-            return "<html> " + "<title>" + "Error" + "</title>"
-                    + "<body><center><h1>" + "Something went wrong" + "</h1></center></body>" + "</html> ";
+            return "<html><head><title>Something went wrong!</title><meta charset=\"UTF-8\"><link rel=\"icon\" type=\"image/ico\" href=\"https://muffle.scharez.at/assets/web/favicon.ico\"><style>*{font-family:\"Roboto\",\"Helvetica Neue\",sans-serif;text-align:center}body{background-image:url(\"https://muffle.scharez.at/assets/web/background.jpg\");background-repeat:no-repeat;background-size:cover}.middlePosition{width:30%;height:45vh;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:2em;padding:2em}.middlePosition h1{color:#ffddab}.middlePosition p{color:rgba(255,221,171,0.7)}.middlePosition button{border-radius:4em;border:1px solid #ffab2d;margin:1em;opacity:.6;transition:opacity .4s;background-color:#ffab2d;padding:.8em;color:white;margin-top:5em}.middlePosition button:hover{opacity:.85}</style></head><body><div class=\"middlePosition\"><img src=\"https://muffle.scharez.at/assets/web/logo.svg\" width=\"40%\"><h1>Something went wrong</h1><p>Please contact support</p><a href=\"https://support.scharez.at\"><button>Support</button></a></div></body></html>";
         }
 
         VerificationToken verifyToken = tokenList.get(0);
@@ -161,12 +164,10 @@ public class Repository {
             em.remove(verifyToken);
             em.getTransaction().commit();
 
-            return "<html> " + "<title>" + "Success" + "</title>"
-                    + "<body><center><h1>" + muffler.getUsername() + " your are verified!"+ "</h1></center></body>" + "</html> ";
+            return "<html><head><title>Verificated!</title><meta charset=\"UTF-8\"><link rel=\"icon\" type=\"image/ico\" href=\"https://muffle.scharez.at/assets/web/favicon.ico\"><style>*{font-family:\"Roboto\",\"Helvetica Neue\",sans-serif;text-align:center}body{background-image:url(\"https://muffle.scharez.at/assets/web/background.jpg\");background-repeat:no-repeat;background-size:cover}.middlePosition{width:30%;height:45vh;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:2em;padding:2em}.middlePosition h1{color:#ffddab}.middlePosition p{color:rgba(255,221,171,0.7)}.middlePosition button{border-radius:4em;border:1px solid #ffab2d;margin:1em;opacity:.6;transition:opacity .4s;background-color:#ffab2d;padding:.8em;color:white;margin-top:5em}.middlePosition button:hover{opacity:.85}</style></head><body><div class=\"middlePosition\"><img src=\"https://muffle.scharez.at/assets/web/logo.svg\" width=\"40%\"><h1>" + muffler.getUsername().toUpperCase() +  " you are now verified!</h1><p>You can now use Muffle!</p><a href=\"https://muffle.scharez.at\"><button>Go to Muffle</button></a></div></body></html>";
         }
 
-        return "<html> " + "<title>" + "Error" + "</title>"
-                + "<body><center><h1>" + " Token has expired, please register again!"+ "</h1></center></body>" + "</html> ";
+        return "<html><head><title>Token expired</title><meta charset=\"UTF-8\"><link rel=\"icon\" type=\"image/ico\" href=\"https://muffle.scharez.at/assets/web/favicon.ico\"><style>*{font-family:\"Roboto\",\"Helvetica Neue\",sans-serif;text-align:center}body{background-image:url(\"https://muffle.scharez.at/assets/web/background.jpg\");background-repeat:no-repeat;background-size:cover}.middlePosition{width:30%;height:45vh;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:2em;padding:2em}.middlePosition h1{color:#ffddab}.middlePosition p{color:rgba(255,221,171,0.7)}.middlePosition button{border-radius:4em;border:1px solid #ffab2d;margin:1em;opacity:.6;transition:opacity .4s;background-color:#ffab2d;padding:.8em;color:white;margin-top:5em}.middlePosition button:hover{opacity:.85}</style></head><body><div class=\"middlePosition\"><img src=\"https://muffle.scharez.at/assets/web/logo.svg\" width=\"40%\"><h1>Your Token has expired!</h1><p>Register again</p><a href=\"https://muffle.scharez.at/register\"><button>Register again</button></a></div></body></html>";
 
     }
 
@@ -176,7 +177,7 @@ public class Repository {
         Muffler muffler = getMuffler();
 
         if (muffler == null) {
-            return jb.generateResponse("error", "Server", "Maybe you login again");
+            return jwtError();
         }
 
         //Zuerst soll in der Datenbank überprüft werden, ob der song schonmal downgeloaded worden ist
@@ -200,14 +201,24 @@ public class Repository {
         return jb.generateResponse("lol", "lol", "lol");
     }
 
+    public String refreshPlaylist(PlaylistTO playlist) {
+
+        Muffler muffler = getMuffler();
+
+        if (muffler == null) {
+            return jwtError();
+        }
+
+        return null;
+    }
+
 
     public String getPlaylists() {
 
         Muffler muffler = getMuffler();
 
-
         if (muffler == null) {
-            return jb.generateResponse("error", "Server", "Maybe you login again");
+            return jwtError();
         }
 
         List<Playlist> result = muffler.getPlaylists();
@@ -216,7 +227,9 @@ public class Repository {
             return jb.generateResponse("hint", "getPlaylists", "No Playlists");
         }
 
-        return result.toString();
+        JSONArray lol = new JSONArray(result);
+
+        return lol.toString();
     }
 
     public String creatPlaylist(PlaylistTO playlist) {
@@ -224,7 +237,7 @@ public class Repository {
         Muffler muffler = getMuffler();
 
         if (muffler == null) {
-            return jb.generateResponse("error", "Server", "Maybe you login again");
+            return jwtError();
         }
 
         for (Playlist p : muffler.getPlaylists()) {
@@ -251,7 +264,7 @@ public class Repository {
         Muffler muffler = getMuffler();
 
         if (muffler == null) {
-            return jb.generateResponse("error", "Server", "Maybe you login again");
+            return jwtError();
         }
 
         List<Song> songs = null;
@@ -270,8 +283,9 @@ public class Repository {
             }
         }
 
+        JSONArray lol = new JSONArray(songs);
 
-        return songs.toString();
+        return lol.toString();
     }
 
 
@@ -308,14 +322,7 @@ public class Repository {
         return result.get(0);
     }
 
-    public String refreshPlaylist(PlaylistTO playlist) {
-
-        Muffler muffler = getMuffler();
-
-        if (muffler == null) {
-            return jb.generateResponse("error", "Server", "Maybe you login again");
-        }
-
-        return null;
+    private String jwtError() {
+        return jb.generateResponse("error", "jwt", "Wrong Token!");
     }
 }

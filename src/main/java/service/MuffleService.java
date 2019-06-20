@@ -45,6 +45,13 @@ public class MuffleService {
         return Repository.getInstance().loginUser(muffler.getUsername(), muffler.getPassword());
     }
 
+    /**
+     * Verify a Muffler
+     *
+     * @param token the Transfer Object of the Muffler entity
+     * @return a json which can contain an error or a successfully login message
+     */
+
     @Path("verify")
     @GET
     @NotSecure

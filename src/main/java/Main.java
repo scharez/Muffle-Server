@@ -10,9 +10,9 @@ import java.util.logging.Logger;
 
 public class Main {
 
-    public static final String BASE_URI = "http://0.0.0.0:8080/rest";
+    private static final String BASE_URI = "http://0.0.0.0:8080/rest";
 
-    public static org.glassfish.grizzly.http.server.HttpServer startServer() {
+    private static org.glassfish.grizzly.http.server.HttpServer startServer() {
 
         final ResourceConfig rc = new ResourceConfig().packages("service", "filter");
 

@@ -47,7 +47,7 @@ public class AuthFilter implements ContainerRequestFilter {
                 try {
 
                     token = authorizationHeader.substring("Bearer".length()).trim();
-                    System.out.println(jwt.checkSubject(token));
+                    jwt.checkSubject(token);
 
                     if (isUserInRole(jwt.getRole(token), secure.value())) {
 
