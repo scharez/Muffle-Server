@@ -10,7 +10,7 @@ import java.util.Date;
 
 public class JwtHelper {
 
-    private final long ACCESS_TOKEN_VALIDITY_SECONDS = 100000;
+    private final long ACCESS_TOKEN_VALIDITY_SECONDS = 10_0000;
 
     private PropertyLoader pl = new PropertyLoader();
 

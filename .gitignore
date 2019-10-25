@@ -85,7 +85,7 @@ hs_err_pid*
 Muffle-Server.iml
 src/.DS_Store
 src/main/.DS_Store
-src/main/resources/
+
 src/test/
 /.idea/vcs.xml
 .idea/vcs.xml

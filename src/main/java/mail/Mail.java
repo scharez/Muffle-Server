@@ -12,7 +12,6 @@ public class Mail {
 
     private Session session;
 
-    private String url = "";
 
     private PropertyLoader pl = new PropertyLoader();
 

@@ -30,7 +30,6 @@ public class Muffler {
     @OneToMany
     private List<Playlist> playlists;
 
-
     @OneToOne(cascade = CascadeType.PERSIST)
     private VerificationToken verificationToken;
 

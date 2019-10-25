@@ -69,17 +69,8 @@ public class MuffleService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Secure
-    public String addSongFromURL(SongTO song) {
-        return Repository.getInstance().addSongFromURL(song);
-    }
-
-    @Path("refreshPlaylist")
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Secure
-    public String refreshPlaylist(PlaylistTO playlist) {
-        return Repository.getInstance().refreshPlaylist(playlist);
+    public String addSongFromURL(String url) {
+        return Repository.getInstance().addSongFromURL(url);
     }
 
     @Path("createPlaylist")

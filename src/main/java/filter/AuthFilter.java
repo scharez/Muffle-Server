@@ -92,7 +92,5 @@ public class AuthFilter implements ContainerRequestFilter {
                 .entity(msg)
                 .build();
     }
-
-    // TODO instead of String Response send a real Response with a Response as a RETURN!
 }
 

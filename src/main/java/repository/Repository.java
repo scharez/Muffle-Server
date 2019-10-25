@@ -1,5 +1,6 @@
 package repository;
 
+import com.google.gson.JsonArray;
 import entity.*;
 
 import helper.JsonBuilder;
@@ -16,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -91,7 +93,7 @@ public class Repository {
         em.persist(user);
         em.getTransaction().commit();
 
-        return jb.generateResponse("success", "register", "Successfully Registered");
+        return jb.generateResponse("success", "register", "Please confirm your email now");
     }
 
     /**
@@ -168,11 +170,10 @@ public class Repository {
         }
 
         return "<html><head><title>Token expired</title><meta charset=\"UTF-8\"><link rel=\"icon\" type=\"image/ico\" href=\"https://muffle.scharez.at/assets/web/favicon.ico\"><style>*{font-family:\"Roboto\",\"Helvetica Neue\",sans-serif;text-align:center}body{background-image:url(\"https://muffle.scharez.at/assets/web/background.jpg\");background-repeat:no-repeat;background-size:cover}.middlePosition{width:30%;height:45vh;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:2em;padding:2em}.middlePosition h1{color:#ffddab}.middlePosition p{color:rgba(255,221,171,0.7)}.middlePosition button{border-radius:4em;border:1px solid #ffab2d;margin:1em;opacity:.6;transition:opacity .4s;background-color:#ffab2d;padding:.8em;color:white;margin-top:5em}.middlePosition button:hover{opacity:.85}</style></head><body><div class=\"middlePosition\"><img src=\"https://muffle.scharez.at/assets/web/logo.svg\" width=\"40%\"><h1>Your Token has expired!</h1><p>Register again</p><a href=\"https://muffle.scharez.at/register\"><button>Register again</button></a></div></body></html>";
-
     }
 
 
-    public String addSongFromURL(SongTO song) {
+    public String addSongFromURL(String url) {
 
         Muffler muffler = getMuffler();
 
@@ -180,38 +181,31 @@ public class Repository {
             return jwtError();
         }
 
+        String storageURL = "/var/www/muffle.scharez.at/assets/songs/%(title)s.%(ext)s";
+
+
         //Zuerst soll in der Datenbank überprüft werden, ob der song schonmal downgeloaded worden ist
 
         Runtime rt = Runtime.getRuntime();
-        /*
+
         executor.execute(() -> {
             try {
-                rt.exec("youtube-d
-                l -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + url);
+                rt.exec("youtube-dl -o " + storageURL+ " -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + url);
             } catch (IOException e) {
+                e.printStackTrace();
             }
         });
-
-        */
-
-        /*value="${jdbc.url}"  In persistence xml file*/
 
         // youtube-dl -o "/Users/scharez/Desktop/%(title)s.%(ext)s" -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 https://www.youtube.com/watch?v=Xm8-bw3nLMA
 
         return jb.generateResponse("lol", "lol", "lol");
     }
 
-    public String refreshPlaylist(PlaylistTO playlist) {
+    public String addSongFromSearch() {
 
-        Muffler muffler = getMuffler();
+        return "";
 
-        if (muffler == null) {
-            return jwtError();
-        }
-
-        return null;
     }
-
 
     public String getPlaylists() {
 
@@ -226,10 +220,9 @@ public class Repository {
         if (result.size() == 0) {
             return jb.generateResponse("hint", "getPlaylists", "No Playlists");
         }
+        result.forEach(p -> p.setSongs(null));
 
-        JSONArray lol = new JSONArray(result);
-
-        return lol.toString();
+        return jb.generateDataResponse("data", "getPlaylists", new JSONArray(result));
     }
 
     public String creatPlaylist(PlaylistTO playlist) {
@@ -272,20 +265,18 @@ public class Repository {
         List<Playlist> result = muffler.getPlaylists();
 
         if (result.size() == 0) {
-            return jb.generateResponse("hint", "getPlaylists", "No Playlists");
+            return jb.generateResponse("hint", "getSongs", "No Playlist");
         }
 
         for (Playlist p : result) {
             if (p.getName().equals(playlist.getName())) {
+                if (p.getSongs() == null) {
+                    return jb.generateResponse("hint", "getSongs", "Playlist contains no Songs");
+                }
                 songs = p.getSongs();
-            } else {
-                return jb.generateResponse("hint", "getSongs", "Playlist contains no Songs");
             }
         }
-
-        JSONArray lol = new JSONArray(songs);
-
-        return lol.toString();
+        return jb.generateDataResponse("data", "getSongs", new JSONArray(songs));
     }
 
 

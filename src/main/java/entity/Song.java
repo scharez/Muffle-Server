@@ -11,6 +11,7 @@ public class Song {
     private long id;
 
     private String url;
+    private String storagePath;
     private String title;
     private String artist;
     private double duration;
@@ -22,9 +23,10 @@ public class Song {
     public Song() {
     }
 
-    public Song(long id, String url, String title, String artist, double duration, Date added) {
+    public Song(long id, String url, String storagePath, String title, String artist, double duration, Date added) {
         this.id = id;
         this.url = url;
+        this.storagePath = storagePath;
         this.title = title;
         this.artist = artist;
         this.duration = duration;
@@ -45,6 +47,14 @@ public class Song {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getStoragePath() {
+        return storagePath;
+    }
+
+    public void setStoragePath(String storagePath) {
+        this.storagePath = storagePath;
     }
 
     public String getTitle() {
