@@ -2,10 +2,13 @@ package mail;
 
 import entity.Muffler;
 import entity.VerificationToken;
-import helper.PropertyLoader;
+import utils.PropertyUtil;
 
 import javax.mail.*;
-import javax.mail.internet.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.util.Properties;
 
 public class Mail {
@@ -13,7 +16,7 @@ public class Mail {
     private Session session;
 
 
-    private PropertyLoader pl = new PropertyLoader();
+    private PropertyUtil pl = PropertyUtil.getInstance();
 
     public Mail() {
 
@@ -27,7 +30,7 @@ public class Mail {
         session = Session.getInstance(prop, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(pl.prop.getProperty("mail.user"), pl.prop.getProperty("mail.password"));
+                return new PasswordAuthentication(pl.getConfigProps().getProperty("mail.user"), pl.getConfigProps().getProperty("mail.password"));
             }
         });
 
@@ -38,7 +41,7 @@ public class Mail {
         Message message = new MimeMessage(session);
 
         try {
-            message.setFrom(new InternetAddress(pl.prop.getProperty("mail.user")));
+            message.setFrom(new InternetAddress(pl.getConfigProps().getProperty("mail.user")));
             message.setRecipients(
                     Message.RecipientType.TO, InternetAddress.parse(user.getEmail()));
             message.setSubject("Activate your Muffle-Account");

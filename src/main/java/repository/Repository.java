@@ -1,18 +1,15 @@
 package repository;
 
-import com.google.gson.JsonArray;
 import entity.*;
-
 import helper.JsonBuilder;
 import helper.JwtHelper;
 import mail.Mail;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import transferObjects.PlaylistTO;
-import transferObjects.SongTO;
+import utils.FileUtil;
+import utils.PropertyUtil;
 
-import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -21,9 +18,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,7 +39,12 @@ public class Repository {
 
     private String token;
 
+    private Properties messageProps;
+    private Properties configProps;
+
     private Repository() {
+        this.messageProps = PropertyUtil.getInstance().getMessageProps();
+        this.configProps = PropertyUtil.getInstance().getConfigProps();
     }
 
     public static synchronized Repository getInstance() {
@@ -60,7 +62,6 @@ public class Repository {
      * @param email    email of the user
      * @return a custom json
      */
-
     public String registerUser(String username, String password, String email) {
 
         Muffler user = new Muffler(username, password, email);
@@ -78,11 +79,11 @@ public class Repository {
         long numberOfEntriesEmail = queryUniqueEmail.getSingleResult();
 
         if (numberOfEntriesName != 0) {
-            return jb.generateResponse("error", "register", "Username already exists");
+            return jb.generateResponse("error", "register", this.messageProps.getProperty("auth.userExists"));
         }
 
         if (numberOfEntriesEmail != 0) {
-            return jb.generateResponse("error", "register", "Email already exists");
+            return jb.generateResponse("error", "register", messageProps.getProperty("auth.emailExists"));
         }
 
         user.setVerificationToken(verificationToken);
@@ -93,7 +94,7 @@ public class Repository {
         em.persist(user);
         em.getTransaction().commit();
 
-        return jb.generateResponse("success", "register", "Please confirm your email now");
+        return jb.generateResponse("success", "register", messageProps.getProperty("auth.confirmMail"));
     }
 
     /**
@@ -103,7 +104,6 @@ public class Repository {
      * @param password password of the user
      * @return a custom json
      */
-
     public String loginUser(String username, String password) {
 
         TypedQuery<Muffler> query = em.createQuery("SELECT m FROM Muffler m WHERE m.username = :username", Muffler.class);
@@ -112,13 +112,13 @@ public class Repository {
         List<Muffler> result = query.getResultList();
 
         if (result.size() == 0) {
-            return jb.generateResponse("error", "login", "User does not exist"); // Error
+            return jb.generateResponse("error", "login", messageProps.getProperty("auth.userNotExists")); // Error
         }
 
         Muffler user = result.get(0);
 
-        if(!user.isVerified()) {
-            return jb.generateResponse("error", "login", "Please confirm your email first");
+        if (!user.isVerified()) {
+            return jb.generateResponse("error", "login", messageProps.getProperty("auth.userNotVerified"));
         }
 
         try {
@@ -128,7 +128,7 @@ public class Repository {
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
             if (!new String(Hex.encode(hash)).equals(user.getPassword())) {
-                return jb.generateResponse("error", "login", "Wrong Password");
+                return jb.generateResponse("error", "login", messageProps.getProperty("auth.wrongPassword"));
             }
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -149,7 +149,8 @@ public class Repository {
         List<VerificationToken> tokenList = queryToken.getResultList();
 
         if (tokenList.size() == 0) {
-            return "<html><head><title>Something went wrong!</title><meta charset=\"UTF-8\"><link rel=\"icon\" type=\"image/ico\" href=\"https://muffle.scharez.at/assets/web/favicon.ico\"><style>*{font-family:\"Roboto\",\"Helvetica Neue\",sans-serif;text-align:center}body{background-image:url(\"https://muffle.scharez.at/assets/web/background.jpg\");background-repeat:no-repeat;background-size:cover}.middlePosition{width:30%;height:45vh;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:2em;padding:2em}.middlePosition h1{color:#ffddab}.middlePosition p{color:rgba(255,221,171,0.7)}.middlePosition button{border-radius:4em;border:1px solid #ffab2d;margin:1em;opacity:.6;transition:opacity .4s;background-color:#ffab2d;padding:.8em;color:white;margin-top:5em}.middlePosition button:hover{opacity:.85}</style></head><body><div class=\"middlePosition\"><img src=\"https://muffle.scharez.at/assets/web/logo.svg\" width=\"40%\"><h1>Something went wrong</h1><p>Please contact support</p><a href=\"https://support.scharez.at\"><button>Support</button></a></div></body></html>";
+            // Error HTML Template
+            return FileUtil.getInstance().readFromFile(configProps.getProperty("general.errorPage"));
         }
 
         VerificationToken verifyToken = tokenList.get(0);
@@ -166,10 +167,10 @@ public class Repository {
             em.remove(verifyToken);
             em.getTransaction().commit();
 
-            return "<html><head><title>Verificated!</title><meta charset=\"UTF-8\"><link rel=\"icon\" type=\"image/ico\" href=\"https://muffle.scharez.at/assets/web/favicon.ico\"><style>*{font-family:\"Roboto\",\"Helvetica Neue\",sans-serif;text-align:center}body{background-image:url(\"https://muffle.scharez.at/assets/web/background.jpg\");background-repeat:no-repeat;background-size:cover}.middlePosition{width:30%;height:45vh;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:2em;padding:2em}.middlePosition h1{color:#ffddab}.middlePosition p{color:rgba(255,221,171,0.7)}.middlePosition button{border-radius:4em;border:1px solid #ffab2d;margin:1em;opacity:.6;transition:opacity .4s;background-color:#ffab2d;padding:.8em;color:white;margin-top:5em}.middlePosition button:hover{opacity:.85}</style></head><body><div class=\"middlePosition\"><img src=\"https://muffle.scharez.at/assets/web/logo.svg\" width=\"40%\"><h1>" + muffler.getUsername().toUpperCase() +  " you are now verified!</h1><p>You can now use Muffle!</p><a href=\"https://muffle.scharez.at\"><button>Go to Muffle</button></a></div></body></html>";
+            return FileUtil.getInstance().readFromFile(configProps.getProperty("general.verifiedPage"));
         }
 
-        return "<html><head><title>Token expired</title><meta charset=\"UTF-8\"><link rel=\"icon\" type=\"image/ico\" href=\"https://muffle.scharez.at/assets/web/favicon.ico\"><style>*{font-family:\"Roboto\",\"Helvetica Neue\",sans-serif;text-align:center}body{background-image:url(\"https://muffle.scharez.at/assets/web/background.jpg\");background-repeat:no-repeat;background-size:cover}.middlePosition{width:30%;height:45vh;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:2em;padding:2em}.middlePosition h1{color:#ffddab}.middlePosition p{color:rgba(255,221,171,0.7)}.middlePosition button{border-radius:4em;border:1px solid #ffab2d;margin:1em;opacity:.6;transition:opacity .4s;background-color:#ffab2d;padding:.8em;color:white;margin-top:5em}.middlePosition button:hover{opacity:.85}</style></head><body><div class=\"middlePosition\"><img src=\"https://muffle.scharez.at/assets/web/logo.svg\" width=\"40%\"><h1>Your Token has expired!</h1><p>Register again</p><a href=\"https://muffle.scharez.at/register\"><button>Register again</button></a></div></body></html>";
+        return FileUtil.getInstance().readFromFile(configProps.getProperty("general.tokenExpiredPage"));
     }
 
 
@@ -190,7 +191,7 @@ public class Repository {
 
         executor.execute(() -> {
             try {
-                rt.exec("youtube-dl -o " + storageURL+ " -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + url);
+                rt.exec("youtube-dl -o " + storageURL + " -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + url);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -218,7 +219,7 @@ public class Repository {
         List<Playlist> result = muffler.getPlaylists();
 
         if (result.size() == 0) {
-            return jb.generateResponse("hint", "getPlaylists", "No Playlists");
+            return jb.generateResponse("hint", "getPlaylists", messageProps.getProperty("playlist.noPlaylist"));
         }
         result.forEach(p -> p.setSongs(null));
 
@@ -265,13 +266,13 @@ public class Repository {
         List<Playlist> result = muffler.getPlaylists();
 
         if (result.size() == 0) {
-            return jb.generateResponse("hint", "getSongs", "No Playlist");
+            return jb.generateResponse("hint", "getSongs", messageProps.getProperty("playlist.noPlaylist"));
         }
 
         for (Playlist p : result) {
             if (p.getName().equals(playlist.getName())) {
                 if (p.getSongs() == null) {
-                    return jb.generateResponse("hint", "getSongs", "Playlist contains no Songs");
+                    return jb.generateResponse("hint", "getSongs", messageProps.getProperty("playlist.empty"));
                 }
                 songs = p.getSongs();
             }
@@ -314,6 +315,6 @@ public class Repository {
     }
 
     private String jwtError() {
-        return jb.generateResponse("error", "jwt", "Wrong Token!");
+        return jb.generateResponse("error", "jwt", messageProps.getProperty("error.invalidToken"));
     }
 }

@@ -89,3 +89,6 @@ src/main/.DS_Store
 src/test/
 /.idea/vcs.xml
 .idea/vcs.xml
+/target/
+.idea/
+src/main/resources/properties/config.properties
