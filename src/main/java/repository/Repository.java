@@ -173,7 +173,9 @@ public class Repository {
         return FileUtil.getInstance().readFromFile(configProps.getProperty("general.tokenExpiredPage"));
     }
 
-
+    /**
+     * Add a Song from URL --> Download new Song
+     */
     public String addSongFromURL(String url) {
 
         Muffler muffler = getMuffler();
@@ -182,26 +184,16 @@ public class Repository {
             return jwtError();
         }
 
-        String storageURL = "/var/www/muffle.scharez.at/assets/songs/%(title)s.%(ext)s";
-
-
-        //Zuerst soll in der Datenbank überprüft werden, ob der song schonmal downgeloaded worden ist
-
-        Runtime rt = Runtime.getRuntime();
-
-        executor.execute(() -> {
-            try {
-                rt.exec("youtube-dl -o " + storageURL + " -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        downloadSong(url);
 
         // youtube-dl -o "/Users/scharez/Desktop/%(title)s.%(ext)s" -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 https://www.youtube.com/watch?v=Xm8-bw3nLMA
 
         return jb.generateResponse("lol", "lol", "lol");
     }
 
+    /**
+     * Song is already downloaded & registered in the Muffle App
+     */
     public String addSongFromSearch() {
 
         return "";
@@ -226,6 +218,11 @@ public class Repository {
         return jb.generateDataResponse("data", "getPlaylists", new JSONArray(result));
     }
 
+    /**
+     * Creates a Playlist out of a given PlaylistObject
+     *
+     * @param playlist - playlist object
+     */
     public String creatPlaylist(PlaylistTO playlist) {
 
         Muffler muffler = getMuffler();
@@ -243,6 +240,7 @@ public class Repository {
         Playlist p = new Playlist();
 
         p.setName(playlist.getName());
+        p.setCreated(new Date());
 
         muffler.getPlaylists().add(p);
 
@@ -284,9 +282,8 @@ public class Repository {
     /**
      * get the JWT-Token into Repository from the Filter
      *
-     * @param token
+     * @param token - Auth token
      */
-
     public void saveHeader(String token) {
         this.token = token;
     }
@@ -296,7 +293,6 @@ public class Repository {
      *
      * @return Muffler
      */
-
     private Muffler getMuffler() {
 
         String username = jwt.checkSubject(this.token);
@@ -316,5 +312,22 @@ public class Repository {
 
     private String jwtError() {
         return jb.generateResponse("error", "jwt", messageProps.getProperty("error.invalidToken"));
+    }
+
+    private void downloadSong(final String songUrl) {
+        // String storageURL = "/var/www/muffle.scharez.at/assets/songs/%(title)s.%(ext)s";
+        String storageURL = "%(title)s.%(ext)s";
+
+        //Zuerst soll in der Datenbank überprüft werden, ob der song schonmal downgeloaded worden ist
+
+        Runtime rt = Runtime.getRuntime();
+
+        executor.execute(() -> {
+            try {
+                rt.exec("youtube-dl.exe -o " + storageURL + " -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + songUrl);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

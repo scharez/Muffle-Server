@@ -17,8 +17,8 @@ import java.util.Properties;
  */
 public class PropertyUtil {
     private static PropertyUtil instance = null;
-    public Properties config_props = new Properties();
-    public Properties message_props = new Properties();
+    private Properties config_props = new Properties();
+    private Properties message_props = new Properties();
 
     public PropertyUtil() {
         init();

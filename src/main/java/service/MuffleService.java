@@ -1,14 +1,13 @@
 package service;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
 import annoation.NotSecure;
 import annoation.Secure;
-import transferObjects.MufflerTO;
 import repository.Repository;
+import transferObjects.MufflerTO;
 import transferObjects.PlaylistTO;
-import transferObjects.SongTO;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 @Path("muffle")
 public class MuffleService {
@@ -60,16 +59,17 @@ public class MuffleService {
 
         return Repository.getInstance().confirmMail(token);
     }
+
     /**
      * ---------------------------------------------------------------------------------------------------------------
      */
 
     @Path("addSongFromURL")
-    @POST
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Secure
-    public String addSongFromURL(String url) {
+    public String addSongFromURL(@QueryParam("url") String url) {
         return Repository.getInstance().addSongFromURL(url);
     }
 

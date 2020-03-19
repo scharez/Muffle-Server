@@ -92,3 +92,4 @@ src/test/
 /target/
 .idea/
 src/main/resources/properties/config.properties
+/dependency-reduced-pom.xml
