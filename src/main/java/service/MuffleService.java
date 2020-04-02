@@ -1,14 +1,13 @@
 package service;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
 import annoation.NotSecure;
 import annoation.Secure;
-import transferObjects.MufflerTO;
 import repository.Repository;
+import transferObjects.MufflerTO;
 import transferObjects.PlaylistTO;
-import transferObjects.SongTO;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 @Path("muffle")
 public class MuffleService {
@@ -19,7 +18,6 @@ public class MuffleService {
      * @param muffler the Transfer Object of the Muffler entity
      * @return a json which can contain an error or a successfully register message
      */
-
     @Path("register")
     @POST
     @NotSecure
@@ -35,7 +33,6 @@ public class MuffleService {
      * @param muffler the Transfer Object of the Muffler entity
      * @return a json which can contain an error or a successfully login message
      */
-
     @Path("login")
     @POST
     @NotSecure
@@ -51,25 +48,24 @@ public class MuffleService {
      * @param token the Transfer Object of the Muffler entity
      * @return a json which can contain an error or a successfully login message
      */
-
     @Path("verify")
     @GET
     @NotSecure
     @Produces(MediaType.TEXT_HTML)
     public String confirmMail(@QueryParam("token") String token) {
-
         return Repository.getInstance().confirmMail(token);
     }
+
     /**
      * ---------------------------------------------------------------------------------------------------------------
      */
 
     @Path("addSongFromURL")
-    @POST
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Secure
-    public String addSongFromURL(String url) {
+    public String addSongFromURL(@QueryParam("url") String url) {
         return Repository.getInstance().addSongFromURL(url);
     }
 
