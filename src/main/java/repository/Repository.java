@@ -1,5 +1,6 @@
 package repository;
 
+import com.google.gson.Gson;
 import entity.*;
 import helper.JsonBuilder;
 import helper.JwtHelper;
@@ -15,6 +16,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -186,7 +191,7 @@ public class Repository {
 
         // youtube-dl -o "/Users/scharez/Desktop/%(title)s.%(ext)s" -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 https://www.youtube.com/watch?v=Xm8-bw3nLMA
 
-        return jb.generateResponse("lol", "lol", "lol");
+        return jb.generateResponse("hint", "Download done", "");
     }
 
     /**
@@ -312,6 +317,9 @@ public class Repository {
         return jb.generateResponse("error", "jwt", messageProps.getProperty("error.invalidToken"));
     }
 
+    /**
+     * @param songUrl - Youtube Link
+     */
     private void downloadSong(final String songUrl) {
         // String storageURL = "/var/www/muffle.scharez.at/assets/songs/%(title)s.%(ext)s";
         String storageURL = "%(title)s.%(ext)s";
@@ -322,10 +330,43 @@ public class Repository {
 
         executor.execute(() -> {
             try {
-                rt.exec("youtube-dl.exe -o " + storageURL + " -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 " + songUrl);
+                Song song = fetchSongInfo(songUrl);
+                Process p = rt.exec("youtube-dl.exe -o " + storageURL + " -f bestaudio --ffmpeg-location C:\\FFmpeg\\bin --extract-audio --audio-format mp3 --audio-quality 0 " + songUrl);
+                //  String[] file = IOUtils.toString(p.getInputStream()).split(" ", 5);
+                // String filename = file[4].split("\n")[0].split(" ", 2)[1].replace(".webm", ".mp3");
+                if (song != null) {
+                    em.getTransaction().begin();
+                    em.persist(song);
+                    em.getTransaction().commit();
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
+    }
+
+    /**
+     * @param videoURL - Link to our Youtube video
+     * @return Song- the Song with SongData
+     */
+    private Song fetchSongInfo(final String videoURL) {
+        try {
+            URL url = new URL("https://www.youtube.com/oembed?url=" + videoURL + "&format=json");
+            Reader reader = new InputStreamReader(url.openStream(), "UTF-8");
+            Map<String, Object> result = new Gson().fromJson(reader, Map.class);
+            Song song = new Song();
+            song.setAdded(new Date());
+            song.setTitle((String) result.get("title"));
+            song.setArtist((String) result.get("author_name"));
+            song.setUrl(videoURL);
+            song.setStoragePath("songs/downloaded/" + song.getTitle().replace(" ", "_") + ".mp3");
+            return song;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Could not fetch Videodata!");
+        }
+        return null;
     }
 }
