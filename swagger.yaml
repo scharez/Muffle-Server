@@ -1,0 +1,73 @@
+swagger: '2.0'
+info:
+  description: REST Api Documentation
+  version: 1.0.0
+  title: Muffle API
+  # put the contact info for your development or API team
+  contact:
+    email: basti@bastiarts.com
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+# tags are used for organizing operations
+tags:
+  - name: auth
+    description: Authentication calls
+  - name: playlist
+    description: Playlist-related calls
+  - name: song
+    description: Song calls
+
+paths:
+  /register:
+    post:
+      tags:
+        - auth
+      summary: register call
+      operationId: registerUser
+      description: |
+        By passing the required Formdata (Username, Email & Password), an Account will be created.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          schema:
+            $ref: '#/definitions/RegisterObject'
+          name: user
+          description: User object
+      responses:
+        200:
+          description: Account created
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RegisterObject'
+        400:
+          description: Error
+definitions:
+  RegisterObject:
+    type: object
+    required:
+      - username
+      - password
+      - email
+    properties:
+      username:
+        type: string
+        example: MaxMustermann
+      password:
+        type: string
+        example: ''
+      email:
+        type: string
+        format: email
+        example: m.mustermann@domain.tld
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+basePath: /BastiArts/Muffle-REST-API/1.0.0
+schemes:
+  - https

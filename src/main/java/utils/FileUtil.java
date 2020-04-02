@@ -1,8 +1,11 @@
 package utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Muffle-Server
@@ -20,7 +23,6 @@ public class FileUtil {
     private static FileUtil instance = null;
 
     private FileUtil() {
-
     }
 
     public static FileUtil getInstance() {
@@ -31,9 +33,22 @@ public class FileUtil {
     }
 
 
-    public String readFromFile(String absolutePath) {
-        StringBuffer contents = new StringBuffer();
+    public String readFromFile(String absolutePath, Map<String, String> flags) {
+        String fileContent = readFile(absolutePath);
+        try {
+            Set<Map.Entry<String, String>> entries = flags.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                fileContent = fileContent.replace(entry.getKey().trim(), entry.getValue().trim());
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return fileContent;
+    }
 
+    public String readFile(String absolutePath) {
+        StringBuffer contents = new StringBuffer();
+        absolutePath = new File(absolutePath).getAbsolutePath();
         try {
             //use buffering, reading one line at a time
             BufferedReader reader = new BufferedReader(new FileReader(absolutePath));

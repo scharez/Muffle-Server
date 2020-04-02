@@ -18,7 +18,6 @@ public class MuffleService {
      * @param muffler the Transfer Object of the Muffler entity
      * @return a json which can contain an error or a successfully register message
      */
-
     @Path("register")
     @POST
     @NotSecure
@@ -34,7 +33,6 @@ public class MuffleService {
      * @param muffler the Transfer Object of the Muffler entity
      * @return a json which can contain an error or a successfully login message
      */
-
     @Path("login")
     @POST
     @NotSecure
@@ -50,13 +48,11 @@ public class MuffleService {
      * @param token the Transfer Object of the Muffler entity
      * @return a json which can contain an error or a successfully login message
      */
-
     @Path("verify")
     @GET
     @NotSecure
     @Produces(MediaType.TEXT_HTML)
     public String confirmMail(@QueryParam("token") String token) {
-
         return Repository.getInstance().confirmMail(token);
     }
 

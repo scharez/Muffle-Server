@@ -18,9 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -142,7 +140,7 @@ public class Repository {
     }
 
     public String confirmMail(String token) {
-
+        Map<String, String> flags = new HashMap<>();
         TypedQuery<VerificationToken> queryToken = em.createQuery("SELECT v FROM VerificationToken v WHERE v.token = :token", VerificationToken.class);
         queryToken.setParameter("token", token);
 
@@ -150,7 +148,7 @@ public class Repository {
 
         if (tokenList.size() == 0) {
             // Error HTML Template
-            return FileUtil.getInstance().readFromFile(configProps.getProperty("general.errorPage"));
+            return FileUtil.getInstance().readFromFile(configProps.getProperty("general.errorPage"), flags);
         }
 
         VerificationToken verifyToken = tokenList.get(0);
@@ -160,17 +158,17 @@ public class Repository {
 
         if (tokenDate.compareTo(currentDate) >= 0) {
             Muffler muffler = verifyToken.getMuffler();
-
+            flags.put("#USER#", muffler.getUsername());
             muffler.setVerified(true);
 
             em.getTransaction().begin();
             em.remove(verifyToken);
             em.getTransaction().commit();
 
-            return FileUtil.getInstance().readFromFile(configProps.getProperty("general.verifiedPage"));
+            return FileUtil.getInstance().readFromFile(configProps.getProperty("general.verifiedPage"), flags);
         }
 
-        return FileUtil.getInstance().readFromFile(configProps.getProperty("general.tokenExpiredPage"));
+        return FileUtil.getInstance().readFromFile(configProps.getProperty("general.tokenExpiredPage"), flags);
     }
 
     /**
